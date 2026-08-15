@@ -29,8 +29,6 @@ function b64dec(s) {
   return atob(s);
 }
 
-const gSearchEngine = document.getElementById('searchEngineIcon');
-if (gSearchEngine) gSearchEngine.src = '/assets/ddg.svg';
 
 const gInput = document.getElementById('gointospace');
 const gAddr = document.getElementById('addr');
@@ -55,7 +53,7 @@ async function doSearch(query) {
   // Hide the centered search, show results pane
   gCenter.style.display = 'none';
   gPane.style.display = 'block';
-  gResults.innerHTML = '<p style="color:#888">Searching DuckDuckGo…</p>';
+  gResults.innerHTML = '<p style="color:#888">Searching…</p>';
   try {
     const r = await fetch('/api/search?q=' + encodeURIComponent(query));
     const data = await r.json();
