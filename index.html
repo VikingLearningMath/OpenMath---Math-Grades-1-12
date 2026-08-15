@@ -720,7 +720,6 @@ body.vk #vkMathView a { color: var(--gold, #d4a017); }
       </form>
     </div>
   </div>
-  <button class="ghost-btn" id="vMathBack" style="margin-left:28px;margin-bottom:20px;">← Back to Viking</button>
 </div>
 
 <!-- ============ VIEW 3: PROXY (client-side) ============ -->
@@ -764,7 +763,6 @@ function showView(id){
 document.getElementById('vNavHome').addEventListener('click', e=>{e.preventDefault(); showView('vkHomeView');});
 document.getElementById('vNavMath').addEventListener('click', e=>{e.preventDefault(); showView('vkMathView');});
 document.getElementById('vNavProxy').addEventListener('click', e=>{e.preventDefault(); showView('vkProxyView');});
-document.getElementById('vMathBack').addEventListener('click', ()=>showView('vkHomeView'));
 
 /* ============================= VIKING HOME: typewriter + search ============================= */
 (function(){

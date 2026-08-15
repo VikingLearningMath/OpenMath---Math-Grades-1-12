@@ -6,6 +6,74 @@ html = html.replace(/^<!DOCTYPE html>\s*/, '');
 html = html.replace(/<html lang="en">/, '<html xmlns="http://www.w3.org/1999/xhtml" lang="en">');
 
 // ---------------------------------------------------------------
+// Statically pre-render the math content so the SVG shows a real,
+// populated math page (scripts don't run inside SVG <foreignObject>).
+//   - extract GRADES + CONTENT from the embedded script
+//   - inject grade pills, topic list, and the first topic's cards
+// ---------------------------------------------------------------
+function extractBalanced(src, fromIdx) {
+  // src[fromIdx] should be '[' or '{'. Return the balanced literal text.
+  const open = src[fromIdx];
+  const close = open === '[' ? ']' : '}';
+  let depth = 0, inStr = null, i = fromIdx;
+  for (; i < src.length; i++) {
+    const ch = src[i];
+    if (inStr) {
+      if (ch === '\\') { i++; continue; }
+      if (ch === inStr) inStr = null;
+      continue;
+    }
+    if (ch === '"' || ch === '\'') { inStr = ch; continue; }
+    if (ch === open) depth++;
+    else if (ch === close) { depth--; if (depth === 0) return src.slice(fromIdx, i + 1); }
+  }
+  return null;
+}
+let GRADES = [], CONTENT = {};
+try {
+  const gStart = html.indexOf('const GRADES =');
+  if (gStart >= 0) { const gi = gStart + 'const GRADES ='.length; const g = extractBalanced(html, html.indexOf('[', gi)); if (g) GRADES = eval(g); }
+  const cStart = html.indexOf('const CONTENT =');
+  if (cStart >= 0) { const ci = cStart + 'const CONTENT ='.length; const c = extractBalanced(html, html.indexOf('{', ci)); if (c) CONTENT = eval('(' + c + ')'); }
+} catch (e) { console.warn('math extract warning:', e.message); }
+function esc(s) { return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function buildMathHtml() {
+  // Grade pills: each grade + an active "All".
+  const pills = ['<button class="grade-pill active" data-grade="all">All</button>'];
+  for (const g of GRADES) pills.push('<button class="grade-pill" data-grade="' + esc(g.id) + '">' + esc(g.short) + '</button>');
+  const gradesHtml = pills.join('');
+  // Topic list: use all grades, first topic active.
+  const items = [];
+  for (const g of GRADES) for (const t of (CONTENT[g.id] || {}).topics || []) items.push({ grade: g, topic: t });
+  const topicsHtml = items.map((it, idx) =>
+    '<div class="topic-item' + (idx === 0 ? ' active' : '') + '" data-topic="' + esc(it.topic.id) + '">' +
+    '<span>' + esc(it.topic.title) + '</span><span class="badge">' + esc(it.grade.short) + '</span></div>'
+  ).join('');
+  // Content: first topic.
+  const first = items[0];
+  let contentHtml = '';
+  if (first) {
+    const t = first.topic;
+    const cards = (t.formulas || []).map(f =>
+      '<div class="formula-card"><h4>' + esc(f.name) + '</h4><div class="expr">' + esc(f.formula) + '</div><p>' + esc(f.description) + '</p></div>'
+    ).join('');
+    const skills = (t.skills || []).map(s => '<div class="skill">' + esc(s) + '</div>').join('');
+    contentHtml =
+      '<div class="topic-head"><h2>' + esc(t.title) + '</h2><p>' + esc(t.blurb || '') + '</p>' +
+      '<span class="meta">' + esc(first.grade.label) + ' · ' + esc(first.grade.short) + '</span></div>' +
+      (cards ? '<div class="section-title">Formulas</div><div class="formula-grid">' + cards + '</div>' : '') +
+      (skills ? '<div class="section-title">Skills to practice</div><div class="skills">' + skills + '</div>' : '');
+  }
+  return { gradesHtml, topicsHtml, contentHtml };
+}
+{
+  const m = buildMathHtml();
+  html = html.replace(/(<section class="grades" id="gradePicker"[^>]*>)[\s\S]*?(<\/section>)/, '$1' + m.gradesHtml + '$2');
+  html = html.replace(/(<div class="topic-list" id="topicList"[^>]*>)[\s\S]*?(<\/div>)/, '$1' + m.topicsHtml + '$2');
+  html = html.replace(/(<section class="content" id="content"[^>]*>)[\s\S]*?(<\/section>)/, '$1' + m.contentHtml + '$2');
+}
+
+// ---------------------------------------------------------------
 // Convert the HTML into well-formed XHTML so it can live inside an
 // SVG <foreignObject> (which a browser parses as strict XML).
 //   1. Escape '&' -> '&amp;' in markup (outside script/style CDATA).
