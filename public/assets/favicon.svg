@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Math Viking symbol: gold sigma (∑) on a black rounded square -->
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffd54a"/>
+      <stop offset="0.5" stop-color="#ffcc00"/>
+      <stop offset="1" stop-color="#e0a800"/>
+    </linearGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#161616"/>
+      <stop offset="1" stop-color="#000"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Black tile -->
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <!-- Gold border -->
+  <rect x="2" y="2" width="60" height="60" rx="12" fill="none" stroke="url(#gold)" stroke-width="3"/>
+
+  <!-- Sigma ∑ (capital Greek sigma) -->
+  <path fill="url(#gold)"
+        d="M52 11 L12 11 L30 32 L12 53 L52 53 L52 45 L24 32 L52 19 Z"/>
+</svg>
