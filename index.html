@@ -753,12 +753,29 @@ body.vk #vkMathView a { color: var(--gold, #d4a017); }
 
 <script>
 /* ============================= BOOT / VIEW SWITCH ============================= */
+// Inside an SVG <foreignObject>, the embedded HTML is in the XHTML namespace and
+// document.body / getElementById can fail. Add a namespace-robust lookup.
+(function () {
+  if (window.__vgGetElPatched) return;
+  window.__vgGetElPatched = true;
+  var orig = document.getElementById.bind(document);
+  document.getElementById = function (id) {
+    var el = orig(id);
+    if (!el && document.querySelector) {
+      try { el = document.querySelector('[id="' + id.replace(/"/g, '\\"') + '"]'); } catch (_e) {}
+    }
+    return el || null;
+  };
+  // document.body may be null in SVG; expose documentElement as a safe fallback.
+  window.__vgBody = document.body || document.documentElement;
+})();
 function showView(id){
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  document.body.classList.toggle('vk', true);
-  if(id === 'vkMathView'){ if(typeof initMath==='function') initMath(); }
-  if(id === 'vkProxyView'){ if(typeof initProxy==='function') initProxy(); }
+  var el = document.getElementById(id); if(!el) return;
+  el.classList.add('active');
+  var b = window.__vgBody; if (b && b.classList) b.classList.toggle('vk', true);
+  try { if(id === 'vkMathView' && typeof initMath==='function') initMath(); } catch(_e){}
+  try { if(id === 'vkProxyView' && typeof initProxy==='function') initProxy(); } catch(_e){}
 }
 document.getElementById('vNavHome').addEventListener('click', e=>{e.preventDefault(); showView('vkHomeView');});
 document.getElementById('vNavMath').addEventListener('click', e=>{e.preventDefault(); showView('vkMathView');});
@@ -919,8 +936,8 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   if(typeof initMath==='function') initMath();
   const modal=document.getElementById('signinModal');
-  const open=()=>{modal.hidden=false;document.body.style.overflow='hidden';setTimeout(()=>document.getElementById('signinUser').focus(),50);};
-  const close=()=>{modal.hidden=true;document.body.style.overflow='';};
+  const open=()=>{modal.hidden=false;var b=window.__vgBody; if(b&&b.style)b.style.overflow='hidden'; setTimeout(()=>document.getElementById('signinUser').focus(),50);};
+  const close=()=>{modal.hidden=true;var b=window.__vgBody; if(b&&b.style)b.style.overflow='';};
   document.getElementById('signInBtn').addEventListener('click',open);
   document.getElementById('signinCancel').addEventListener('click',close);
   modal.addEventListener('click',e=>{if(e.target===modal)close();});
