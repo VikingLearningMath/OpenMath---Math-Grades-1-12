@@ -55,19 +55,17 @@
   <!-- Initial search header (centered) -->
   <div class="header" id="centerSearch">
     <h1>Say Hello To <span class="typewrite" data-period="2000" data-type='[ "Viking.","adventure.","exploration.","power.","the open web.","valhalla.","freedom.","speed.","the seven seas.","your gateway.","aesthetic.","privacy."]'><span class="wrap"></span></span></h1>
-    <div class="search-header" style="animation: fade-in-top 1s; margin-top: 8px;">
-      <form id="formintospace">
-        <input
-          id="gointospace"
-          placeholder=""
-          class="search-header__input"
-          type="text"
-        />
-        <button aria-label="search" type="submit" class="search-header__button gointospaceSearchButton">
-          <span class="material-symbols-outlined" style="font-size:22px">search</span>
-        </button>
-      </form>
-    </div>
+    <form id="formintospace" class="search-header" style="animation: fade-in-top 1s;">
+      <input
+        id="gointospace"
+        placeholder=""
+        class="search-header__input"
+        type="text"
+      />
+      <button aria-label="search" type="submit" class="search-header__button gointospaceSearchButton">
+        <span class="go-arrow">&#8594;</span>
+      </button>
+    </form>
   </div>
 
   <!-- Search results pane (hidden until needed) -->
@@ -84,16 +82,11 @@
     <div class="spinner" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"></div>
   </div>
 
-  <!-- Background -->
-  <div class="blob"></div>
-  <div style="z-index:-998;position:fixed;" class="blobbig"></div>
-  <div class="blobsmall"></div>
-  <div class="blobtop"></div>
-  <canvas id="lava-bg" aria-hidden="true"></canvas>
+  <!-- Background vignette (checkerboard pattern is painted on the body) -->
+  <div id="grid-overlay" aria-hidden="true"></div>
 
   <script src="/js/proxy.js"></script>
-  <!-- Shared typewriter + lava background -->
+  <!-- Shared typewriter effect -->
   <script src="/js/typewriter.js"></script>
-  <script src="/js/lava.js"></script>
 </body>
 </html>

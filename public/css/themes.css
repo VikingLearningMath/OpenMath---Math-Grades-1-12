@@ -1,2 +1,5 @@
-/* /css/themes.css — dark theme. */
-body { background: #161616; color: #ffcc00; }
+/* /css/themes.css — dark theme.
+   Note: do NOT set a shorthand background here; it would override the
+   checkerboard pattern painted on body in index.css. */
+html { background: #000; }
+body { color: #ffcc00; }
