@@ -125,13 +125,9 @@ app.get('/p', async (req, res) => {
 });
 
 // ----- Named page routes (registered BEFORE static so they take priority) -----
-// The viking page lives on / and the secret path (single viking landing).
-app.get(['/'], (_req, res) => res.sendFile(path.join(PUBLIC, 'proxy.html')));
-// The math site (Openmathlearning) is reachable at /math.
-app.get(['/math', '/math/'], (_req, res) => res.sendFile(path.join(PUBLIC, 'home.html')));
-// The secret Viking-proxy landing URL. Anyone who can guess this hex string
-// is welcome in; everyone else uses the in-app sign-in flow which fetches
-// the URL via /api/_unlock. Same single viking page as /.
+// The app starts on the math page (Openmathlearning).
+app.get(['/', '/math', '/math/'], (_req, res) => res.sendFile(path.join(PUBLIC, 'home.html')));
+// The viking proxy lives ONLY on the secret path (the token the sign-in flow returns).
 app.get(SECRET_PATH, (_req, res) => res.sendFile(path.join(PUBLIC, 'proxy.html')));
 // Settings page (used inside the proxy UI).
 app.get('/settings', (_req, res) => res.sendFile(path.join(PUBLIC, 'settings.html')));

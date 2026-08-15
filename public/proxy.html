@@ -54,26 +54,20 @@
 
   <!-- Initial search header (centered) -->
   <div class="header" id="centerSearch">
-    <div style="display: flex; flex-direction: column; align-items: center; margin: 20px; width: 100vw;">
-      <h1 style="color:#ffd700;font-size:clamp(30px,6vw,58px);font-weight:800;letter-spacing:-.02em;text-shadow:0 0 40px rgba(255,204,0,.35);margin:0 0 8px;">
-        Say Hello To <span class="typewrite" data-period="2000" data-type='[ "Viking.","adventure.","exploration.","power.","the open web.","valhalla.","freedom.","speed.","the seven seas.","your gateway.","aesthetic.","privacy."]'><span class="wrap"></span></span>
-      </h1>
-      <div style="animation: fade-in-top 1s; margin-top: 6px" class="search-header">
-        <img src="" class="searchEngineIcon" id="searchEngineIcon" />
-        <form id="formintospace">
-          <input
-            id="gointospace"
-            placeholder="Search DuckDuckGo or enter URL…"
-            class="search-header__input"
-            type="text"
-          />
-          <button aria-label="search" type="submit" class="search-header__button gointospaceSearchButton">
-            <svg fill="none" viewBox="0 0 18 18" height="18" width="18" class="search-header__icon">
-              <path fill="#3A3A3A" d="M7.132 0C3.197 0 0 3.124 0 6.97c0 3.844 3.197 6.969 7.132 6.969 1.557 0 2.995-.49 4.169-1.32L16.82 18 18 16.847l-5.454-5.342a6.846 6.846 0 0 0 1.718-4.536C14.264 3.124 11.067 0 7.132 0zm0 .82c3.48 0 6.293 2.748 6.293 6.15 0 3.4-2.813 6.149-6.293 6.149S.839 10.37.839 6.969C.839 3.568 3.651.82 7.132.82z" />
-            </svg>
-          </button>
-        </form>
-      </div>
+    <h1>Say Hello To <span class="typewrite" data-period="2000" data-type='[ "Viking.","adventure.","exploration.","power.","the open web.","valhalla.","freedom.","speed.","the seven seas.","your gateway.","aesthetic.","privacy."]'><span class="wrap"></span></span></h1>
+    <div class="search-header" style="animation: fade-in-top 1s; margin-top: 8px;">
+      <img src="" class="searchEngineIcon" id="searchEngineIcon" />
+      <form id="formintospace">
+        <input
+          id="gointospace"
+          placeholder="Search DuckDuckGo or enter URL…"
+          class="search-header__input"
+          type="text"
+        />
+        <button aria-label="search" type="submit" class="search-header__button gointospaceSearchButton">
+          <span class="material-symbols-outlined" style="font-size:22px">search</span>
+        </button>
+      </form>
     </div>
   </div>
 
