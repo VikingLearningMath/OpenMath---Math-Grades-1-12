@@ -16,7 +16,6 @@
     rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..400,0..1"
   />
-  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 </head>
 <body>
   <ul class="navbar">
@@ -90,8 +89,10 @@
   <div style="z-index:-998;position:fixed;" class="blobbig"></div>
   <div class="blobsmall"></div>
   <div class="blobtop"></div>
-  <div style="z-index:-999" id="particles-js"></div>
+  <canvas id="lava-bg" aria-hidden="true"></canvas>
 
   <script src="/js/proxy.js"></script>
+  <!-- Lava mouse-effect background (shared) -->
+  <script src="/js/lava.js"></script>
 </body>
 </html>
