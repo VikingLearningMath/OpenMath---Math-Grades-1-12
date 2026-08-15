@@ -1,0 +1,16 @@
+# Node
+node_modules/
+npm-debug.log*
+*.log
+
+# Env / secrets
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+
+# Optional: runtime state
+/tmp

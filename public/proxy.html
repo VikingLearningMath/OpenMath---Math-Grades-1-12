@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Viking</title>
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <link rel="stylesheet" href="/css/index.css" />
+  <link rel="stylesheet" href="/css/themes.css" />
+  <link rel="stylesheet" href="/css/proxy.css" />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..40,100..1000&display=swap"
+  />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..400,0..1"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+</head>
+<body>
+  <ul class="navbar">
+    <li style="margin-left: -1px; margin-top: 2px">
+      <a href="/"><img class="logo" src="/assets/logo.webp" alt="Logo" /></a>
+    </li>
+    <hr style="margin-top: 5px" />
+    <li>
+      <a href="/"><span class="material-symbols-outlined">cottage</span></a>
+    </li>
+    <hr />
+    <li>
+      <a href="/settings.html"><span style="margin-top: 0" class="material-symbols-outlined">tune</span></a>
+    </li>
+  </ul>
+
+  <!-- Utility bar shown above content / iframe -->
+  <div class="utilityBar" id="utilityBar">
+    <ul class="utility">
+      <li><div class="utilityIcon" id="backBtn"><span class="material-symbols-outlined">arrow_back</span></div></li>
+      <li><div class="utilityIcon" id="refreshBtn"><span class="material-symbols-outlined">refresh</span></div></li>
+      <li><div class="utilityIcon" id="forwardBtn"><span class="material-symbols-outlined">arrow_forward</span></div></li>
+      <hr style="min-width: 1px" />
+      <div class="search-header" style="flex-grow: 1; margin-left: 8px; margin-right: 8px">
+        <input id="addr" placeholder="Enter URL or search…" class="search-header__input" type="text" />
+      </div>
+      <hr style="margin-left: 43px; min-width: 1px" />
+      <li><div class="utilityIcon" id="homeBtn"><span class="material-symbols-outlined">cottage</span></div></li>
+      <li><div class="utilityIcon" id="fullscreenBtn"><span class="material-symbols-outlined">fullscreen</span></div></li>
+    </ul>
+  </div>
+
+  <!-- Initial search header (centered) -->
+  <div class="header" id="centerSearch">
+    <div style="display: flex; flex-direction: column; align-items: center; margin: 20px; width: 100vw;">
+      <div style="animation: fade-in-top 1s; margin-top: -150px" class="search-header">
+        <img src="" class="searchEngineIcon" id="searchEngineIcon" />
+        <form id="formintospace">
+          <input
+            id="gointospace"
+            placeholder="Search DuckDuckGo or enter URL…"
+            class="search-header__input"
+            type="text"
+          />
+          <button aria-label="search" type="submit" class="search-header__button gointospaceSearchButton">
+            <svg fill="none" viewBox="0 0 18 18" height="18" width="18" class="search-header__icon">
+              <path fill="#3A3A3A" d="M7.132 0C3.197 0 0 3.124 0 6.97c0 3.844 3.197 6.969 7.132 6.969 1.557 0 2.995-.49 4.169-1.32L16.82 18 18 16.847l-5.454-5.342a6.846 6.846 0 0 0 1.718-4.536C14.264 3.124 11.067 0 7.132 0zm0 .82c3.48 0 6.293 2.748 6.293 6.15 0 3.4-2.813 6.149-6.293 6.149S.839 10.37.839 6.969C.839 3.568 3.651.82 7.132.82z" />
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search results pane (hidden until needed) -->
+  <div id="resultsPane" style="display:none; padding: 90px 60px 40px 110px;">
+    <h2 style="color:#fff;margin-bottom:18px;">Results</h2>
+    <div id="results"></div>
+  </div>
+
+  <!-- Iframe for proxied site -->
+  <iframe id="intospace" style="display:none;width:calc(100vw - 50px);position:absolute;border:none;outline:0;right:0;z-index:9999999;background-color:#252525;bottom:0;"></iframe>
+
+  <!-- Spinner overlay -->
+  <div class="spinnerParent" id="spinner" style="display:none;z-index:999999;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);">
+    <div class="spinner" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);"></div>
+  </div>
+
+  <!-- Background -->
+  <div class="blob"></div>
+  <div style="z-index:-998;position:fixed;" class="blobbig"></div>
+  <div class="blobsmall"></div>
+  <div class="blobtop"></div>
+  <div style="z-index:-999" id="particles-js"></div>
+
+  <script src="/js/proxy.js"></script>
+</body>
+</html>

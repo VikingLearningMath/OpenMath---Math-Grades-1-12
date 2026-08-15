@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Viking</title>
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <link rel="stylesheet" href="/css/index.css" />
+  <link rel="stylesheet" href="/css/themes.css" />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap"
+  />
+  <style>
+    .wrap {
+      max-width: 720px;
+      margin: 80px auto 0 90px;
+      padding: 20px;
+    }
+    h1 { margin-bottom: 20px; font-weight: 800; color: #ffcc00; }
+    .opt {
+      padding: 18px;
+      border: 1px solid #1a1a1a;
+      border-radius: 12px;
+      background: #0a0a0a;
+      margin-bottom: 14px;
+    }
+    .opt h3 { color: #ffcc00; font-size: 14px; margin-bottom: 8px; font-weight: 600; }
+    .opt p { color: #aaa; font-size: 14px; }
+    a.btn {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 8px;
+      background: #ffcc00;
+      color: #000;
+      font-weight: 600;
+      text-decoration: none;
+      margin-top: 8px;
+    }
+    .opt a.btn:hover { background: #ffd54a; }
+  </style>
+</head>
+<body>
+  <ul class="navbar">
+    <li style="margin-left: -1px; margin-top: 2px">
+      <a href="/"><img class="logo" src="/assets/logo.webp" alt="Logo" /></a>
+    </li>
+    <hr style="margin-top: 5px" />
+    <li>
+      <a href="/"><span class="material-symbols-outlined">cottage</span></a>
+    </li>
+    <hr />
+    <li>
+      <a href="/settings.html"><span style="margin-top: 0" id="navactive" class="material-symbols-outlined">tune</span></a>
+    </li>
+  </ul>
+
+  <div class="wrap">
+    <h1>Settings</h1>
+
+    <div class="opt">
+      <h3>SEARCH ENGINE</h3>
+      <p>Viking uses DuckDuckGo for search results.</p>
+    </div>
+
+    <div class="opt">
+      <h3>DEFAULT ENGINE</h3>
+      <p>Direct URL searches go through <code>duckduckgo.com</code> if you type a non-URL query.</p>
+    </div>
+
+    <div class="opt">
+      <h3>PROXY MODE</h3>
+      <p>URLs are fetched server-side and HTML is rewritten so relative links route through the proxy.</p>
+      <a class="btn" href="/">← Back to home</a>
+    </div>
+  </div>
+</body>
+</html>

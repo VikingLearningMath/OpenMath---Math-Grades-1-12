@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Openmathlearning — K-12 Formulas & Skills</title>
+  <meta name="description" content="A free K-12 math site with formulas, skills, and interactive practice." />
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <link rel="stylesheet" href="/app.css" />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap"
+  />
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <div class="logo-mark" aria-hidden="true">∑</div>
+      <div>
+        <h1>Openmathlearning</h1>
+        <p class="tagline">Formulas & skills — Kindergarten through 12<sup>th</sup></p>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button id="signInBtn" class="ghost-btn" aria-label="Sign in">
+        <span class="lock-ico" aria-hidden="true">🔒</span> Sign in
+      </button>
+    </div>
+  </header>
+
+  <main class="app" id="main" role="main">
+    <section class="grades" id="gradePicker" aria-label="Choose grade" role="tablist">
+      <!-- Filled by JS -->
+    </section>
+
+    <div class="layout">
+      <aside class="sidebar" id="sidebar" aria-label="Topics">
+        <h2 class="sidebar-title">Topics</h2>
+        <div class="topic-list" id="topicList" role="tablist">
+          <!-- Filled by JS -->
+        </div>
+      </aside>
+
+      <section class="content" id="content" aria-live="polite">
+        <div class="placeholder">
+          <h2>Pick a topic to start learning</h2>
+          <p>Use the grade selector above to filter, then pick a topic on the left.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Sign-in modal -->
+  <div class="modal-backdrop" id="signinModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="signinTitle">
+      <h2 id="signinTitle">Sign in</h2>
+      <p class="muted">Press to enter the realm of the Vikings.</p>
+      <form id="signinForm" novalidate>
+        <label>
+          Username
+          <input type="text" id="signinUser" autocomplete="username" required />
+        </label>
+        <label>
+          Password
+          <input type="password" id="signinPass" autocomplete="current-password" required />
+        </label>
+        <div class="modal-error" id="signinError" hidden role="alert"></div>
+        <div class="modal-actions">
+          <button type="button" class="ghost-btn" id="signinCancel">Cancel</button>
+          <button type="submit" class="primary-btn">Sign in</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Server-injected runtime config (path + creds). Loaded BEFORE the bundle. -->
+  <script src="/api/_init.js"></script>
+  <script type="module" src="/bundle.js"></script>
+</body>
+</html>

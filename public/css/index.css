@@ -1,0 +1,167 @@
+/* /css/index.css — base styles for both home and proxy pages.
+   Theme: black + gold/yellow accent. */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: #000;
+  color: #ffcc00;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+
+@keyframes fade-in-top {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in-bottom {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes blob-animation {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(40px, -20px) scale(1.05); }
+  66%      { transform: translate(-30px, 20px) scale(0.95); }
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 70px;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid #1a1a1a;
+  z-index: 9999999;
+  list-style: none;
+  padding: 0;
+}
+
+.navbar li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50px;
+  margin-top: 8px;
+}
+
+.navbar .logo { width: 36px; height: 36px; }
+
+.navbar hr {
+  width: 60%;
+  margin: 4px auto;
+  border: none;
+  border-top: 1px solid #1a1a1a;
+}
+
+.material-symbols-outlined {
+  font-size: 24px !important;
+  color: #ffcc00;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.navbar a:hover .material-symbols-outlined {
+  background: #1a1a1a;
+  color: #ffd700;
+}
+
+#navactive {
+  color: #ffd700 !important;
+  background: rgba(255, 204, 0, 0.12);
+}
+
+/* Home hero */
+.header {
+  position: absolute;
+  top: 50%;
+  left: calc(70px + 50%);
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header h1 {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-align: center;
+  color: #ffd700;
+}
+
+.header p { color: #ffcc00; margin-top: 8px; font-size: 16px; }
+
+/* (Typewriter removed — Viking now shows as static gold text.) */
+
+/* Home search bar */
+#home-search {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#home-input {
+  width: 520px;
+  max-width: 80vw;
+  padding: 14px 18px;
+  border-radius: 30px;
+  border: 1px solid #ffcc00;
+  background: #000;
+  color: #ffd700;
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+#home-input:focus { border-color: #ffd700; }
+
+/* Background blobs — gold/amber/bronze tones */
+.blob,
+.blobbig,
+.blobsmall,
+.blobtop {
+  position: fixed;
+  z-index: -998;
+  pointer-events: none;
+}
+
+.blob {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, #ffcc00 0%, transparent 70%);
+  border-radius: 50%;
+  top: -100px; left: -100px;
+  animation: blob-animation 25s infinite ease-in-out;
+}
+
+.blobbig {
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, #b8860b 0%, transparent 70%);
+  border-radius: 50%;
+  bottom: -300px; right: -200px;
+  animation: blob-animation 35s infinite ease-in-out;
+}
+
+.blobsmall {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, #ffd54a 0%, transparent 70%);
+  border-radius: 50%;
+  top: 30%; right: 10%;
+  animation: blob-animation 20s infinite ease-in-out;
+}
+
+.blobtop {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, #7c4a00 0%, transparent 70%);
+  border-radius: 50%;
+  top: 60%; left: 10%;
+  animation: blob-animation 30s infinite ease-in-out;
+}

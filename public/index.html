@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Viking</title>
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <link rel="stylesheet" href="/css/index.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..40,100..1000&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..400,0..1" />
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+</head>
+<body>
+  <ul class="navbar">
+    <li style="margin-left: -1px; margin-top: 2px">
+      <a href="/"><img class="logo" src="/assets/logo.webp" alt="Viking" /></a>
+    </li>
+    <hr style="margin-top: 5px" />
+    <li>
+      <a href="/" id="navactive"><span class="material-symbols-outlined">cottage</span></a>
+    </li>
+    <hr />
+    <li>
+      <a href="/settings"><span style="margin-top: 0" class="material-symbols-outlined">tune</span></a>
+    </li>
+  </ul>
+
+  <div class="blob"></div>
+  <div class="blobbig"></div>
+  <div class="blobsmall"></div>
+  <div class="blobtop"></div>
+  <div style="z-index:-999" id="particles-js"></div>
+
+  <div class="header">
+    <h1 style="font-size: clamp(34px, 7vw, 72px)">
+      Welcome to
+      <span style="cursor: text">
+        <span
+          class="typewrite"
+          data-period="2000"
+          data-type='[ "Viking.","adventure.","exploration.", "power.","the open web.","valhalla.","freedom.","speed.","the seven seas.","your gateway.","aesthetic.","privacy."]'
+        >
+          <span class="wrap"></span>
+        </span>
+      </span>
+    </h1>
+    <p>Search, browse, and explore — powered by an open proxy.</p>
+
+    <form id="home-search" autocomplete="off">
+      <input
+        id="home-input"
+        type="text"
+        placeholder="Search or enter a URL…"
+        aria-label="Search or enter URL"
+      />
+    </form>
+  </div>
+
+  <script>
+    // Typewriter effect (classic open-source snippet)
+    var TxtType = function(el, toRotate, period) {
+      this.toRotate = toRotate;
+      this.el = el;
+      this.loopNum = 0;
+      this.period = parseInt(period, 10) || 2000;
+      this.txt = '';
+      this.tick();
+      this.isDeleting = false;
+    };
+    TxtType.prototype.tick = function() {
+      var i = this.loopNum % this.toRotate.length;
+      var fullTxt = this.toRotate[i];
+      if (this.isDeleting) {
+        this.txt = fullTxt.substring(0, this.txt.length - 1);
+      } else {
+        this.txt = fullTxt.substring(0, this.txt.length + 1);
+      }
+      this.el.innerHTML = '<span class="wrap">' + this.txt + '</span>';
+      var that = this;
+      var delta = 200 - Math.random() * 100;
+      if (this.isDeleting) { delta /= 2; }
+      if (!this.isDeleting && this.txt === fullTxt) {
+        delta = this.period;
+        this.isDeleting = true;
+      } else if (this.isDeleting && this.txt === '') {
+        this.isDeleting = false;
+        this.loopNum++;
+        delta = 500;
+      }
+      setTimeout(function() { that.tick(); }, delta);
+    };
+    var elements = document.getElementsByClassName('typewrite');
+    for (var i = 0; i < elements.length; i++) {
+      var toRotate = elements[i].getAttribute('data-type');
+      var period = elements[i].getAttribute('data-period');
+      if (toRotate) {
+        new TxtType(elements[i], JSON.parse(toRotate), period);
+      }
+    }
+
+    // Search: navigate into the proxy, which fetches via an open-source CORS proxy.
+    document.getElementById('home-search').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var q = document.getElementById('home-input').value.trim();
+      if (q) location.href = '/proxy?q=' + encodeURIComponent(q);
+    });
+
+    // Particles background
+    if (window.particlesJS) {
+      particlesJS('particles-js', {
+        particles: {
+          number: { value: 86, density: { enable: true, value_area: 800 } },
+          color: { value: '#ffffff' },
+          shape: { type: 'circle' },
+          opacity: { value: 1, random: true },
+          size: { value: 2, random: true },
+          line_linked: { enable: false },
+          move: { enable: true, speed: 0.5, direction: 'top', random: false, straight: false, out_mode: 'out' },
+        },
+      });
+    }
+  </script>
+</body>
+</html>

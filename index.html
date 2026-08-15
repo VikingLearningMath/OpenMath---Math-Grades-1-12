@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Viking</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" />
+<style>
+/* ================= VIKING THEME (home + proxy) ================= */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; min-height: 100vh; }
+.vk { color: #ffcc00; font-family: 'DM Sans', system-ui, sans-serif; background: #000; overflow-x: hidden; }
+.vk a { color: inherit; text-decoration: none; }
+@keyframes vk-fade { from { opacity: 0; transform: translate(-50%,-50%) translateY(-18px); } to { opacity: 1; transform: translate(-50%,-50%) translateY(0); } }
+@keyframes vk-blob { 0%,100% { transform: translate(0,0) scale(1);} 33% { transform: translate(40px,-20px) scale(1.05);} 66% { transform: translate(-30px,20px) scale(.95);} }
+.vk-nav { position: fixed; top: 0; left: 0; width: 70px; height: 100vh; background: rgba(0,0,0,.95); backdrop-filter: blur(20px); border-right: 1px solid #1a1a1a; z-index: 9999999; list-style: none; padding: 0; }
+.vk-nav li { display: flex; align-items: center; justify-content: center; height: 50px; margin-top: 8px; }
+.vk-nav .logo { width: 36px; height: 36px; font-size: 30px; display:flex; align-items:center; justify-content:center; color:#ffd700; }
+.vk-nav hr { width: 60%; margin: 4px auto; border: none; border-top: 1px solid #1a1a1a; }
+.vk-nav a { color: #ffcc00; font-size: 22px; padding: 8px; border-radius: 8px; transition: background .15s; }
+.vk-nav a:hover { background: #1a1a1a; color: #ffd700; }
+.vk-nav a.active { color:#ffd700; background: rgba(255,204,0,.12); }
+.vk-blob, .vk-b2, .vk-b3, .vk-b4 { position: fixed; z-index: -998; pointer-events: none; }
+.vk-blob { width:500px; height:500px; background: radial-gradient(circle,#ffcc00 0%,transparent 70%); border-radius:50%; top:-100px; left:-100px; animation: vk-blob 25s infinite ease-in-out; }
+.vk-b2 { width:800px; height:800px; background: radial-gradient(circle,#b8860b 0%,transparent 70%); border-radius:50%; bottom:-300px; right:-200px; animation: vk-blob 35s infinite ease-in-out; }
+.vk-b3 { width:300px; height:300px; background: radial-gradient(circle,#ffd54a 0%,transparent 70%); border-radius:50%; top:30%; right:10%; animation: vk-blob 20s infinite ease-in-out; }
+.vk-b4 { width:400px; height:400px; background: radial-gradient(circle,#7c4a00 0%,transparent 70%); border-radius:50%; top:60%; left:10%; animation: vk-blob 30s infinite ease-in-out; }
+.vk-home { position: absolute; top: 50%; left: calc(70px + 50%); transform: translate(-50%,-50%); text-align: center; width: 800px; max-width: 90vw; animation: vk-fade 1s; }
+.vk-home h1 { font-size: clamp(34px,7vw,72px); font-weight: 800; letter-spacing: -.02em; color: #ffd700; text-shadow: 0 0 40px rgba(255,204,0,.4); }
+.vk-home p { color: #ffcc00; margin-top: 12px; font-size: 17px; }
+.vk-search { margin-top: 26px; display: flex; align-items: center; background: #0a0a0a; border: 1px solid #ffcc00; border-radius: 40px; padding: 0 18px; height: 58px; max-width: 640px; margin-left:auto; margin-right:auto; }
+.vk-search:focus-within { border-color: #ffd700; box-shadow: 0 0 20px rgba(255,204,0,.18); }
+.vk-search input { flex: 1; background: transparent; border: none; outline: none; color: #ffd700; font-size: 17px; font-family: inherit; }
+.vk-search button { background: transparent; border: none; cursor: pointer; color: #ffcc00; font-size: 22px; }
+.vk-util { position: fixed; top: 0; left: 70px; right: 0; height: 58px; background: rgba(0,0,0,.95); backdrop-filter: blur(20px); border-bottom: 1px solid #1a1a1a; z-index: 999999; display:none; align-items: center; padding: 0 14px; gap: 8px; }
+.vk-util .ic { display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:8px; cursor:pointer; color:#aaa; font-size:20px; transition: background .15s, color .15s; user-select:none; }
+.vk-util .ic:hover { background:#1a1a1a; color:#ffcc00; }
+.vk-util .addr { flex:1; max-width:640px; background:#0a0a0a; border:1px solid #1a1a1a; border-radius:30px; padding:0 18px; height:42px; color:#ffd700; font-size:15px; font-family:inherit; outline:none; }
+.vk-util .addr:focus { border-color:#ffcc00; }
+.vk-results { display:none; padding: 100px 40px 40px 100px; }
+.vk-result { background:#0a0a0a; border:1px solid #1a1a1a; border-radius:10px; padding:14px; margin-bottom:14px; }
+.vk-result .u { color:#b8860b; font-size:13px; display:block; word-break:break-all; }
+.vk-result .t { color:#ffcc00; font-size:18px; font-weight:600; display:block; margin:4px 0; cursor:pointer; }
+.vk-result .t:hover { color:#ffd700; text-decoration:underline; }
+.vk-result .s { color:#aaa; font-size:14px; margin:0; }
+.vk-frame { position: fixed; top:58px; left:70px; right:0; bottom:0; width: calc(100vw - 70px); border:none; background:#fff; display:none; z-index: 999998; }
+.vk-spin { display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,.4); z-index:9999999; }
+.vk-spin .ring { position:absolute; top:50%; left:50%; width:60px; height:60px; border:4px solid rgba(255,204,0,.2); border-top-color:#ffcc00; border-radius:50%; animation: vkspin .8s linear infinite; transform:translate(-50%,-50%); }
+@keyframes vkspin { from { transform: translate(-50%,-50%) rotate(0); } to { transform: translate(-50%,-50%) rotate(360deg); } }
+
+/* ================= MATH THEME ================= */
+/* /app.css — Openmathlearning. Light theme + gold accent.
+   Note: this file is intentionally separate from /css/index.css so the proxy
+   pages can stay dark while /math stays light. */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold:        #d4a017;   /* primary "Openmathlearning" gold */
+  --gold-soft:   #f0b429;
+  --gold-deep:   #a87d0c;
+  --gold-bg:     #fff7e0;   /* faint gold tint background */
+  --gold-tint:   #fff2cc;
+  --text:        #1a1a1a;
+  --text-dim:    #555;
+  --text-mute:   #888;
+  --bg-0:        #ffffff;   /* page bg — pure white */
+  --bg-1:        #ffffff;   /* cards & sidebar */
+  --bg-2:        #f7f7f5;   /* nested card bg */
+  --bg-3:        #efefed;   /* deeper neutral */
+  --line:        #e6e6e3;
+  --line-2:      #d6d6d2;
+  --shadow:      0 6px 24px rgba(0,0,0,0.08);
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.05);
+}
+
+html, body {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--bg-0);
+  color: var(--text);
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  overflow-x: hidden;
+}
+
+a { color: var(--gold); text-decoration: none; }
+button { font: inherit; cursor: pointer; }
+
+/* ---------- Topbar ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 28px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo-mark {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(212, 160, 23, 0.25);
+}
+
+.brand h1 {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.tagline {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* ---------- Buttons ---------- */
+.primary-btn, .ghost-btn, .tool-btn {
+  border-radius: 10px;
+  font-weight: 600;
+  transition: transform 0.08s, background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.primary-btn {
+  padding: 10px 18px;
+  background: var(--gold);
+  color: #fff;
+  border: none;
+}
+.primary-btn:hover { background: var(--gold-deep); }
+.primary-btn:active { transform: translateY(1px); }
+
+.ghost-btn {
+  padding: 9px 16px;
+  background: transparent;
+  color: var(--gold-deep);
+  border: 1px solid var(--line-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ghost-btn:hover { border-color: var(--gold); background: var(--gold-bg); }
+.lock-ico { font-size: 13px; }
+
+/* ---------- Layout ---------- */
+.app { max-width: 1280px; margin: 0 auto; padding: 28px; }
+
+.grades {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.grade-pill {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.15s;
+}
+.grade-pill:hover { color: var(--gold-deep); border-color: var(--gold); }
+.grade-pill.active {
+  background: var(--gold);
+  color: #fff;
+  border-color: var(--gold);
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  position: sticky;
+  top: 110px;
+  align-self: start;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px;
+  max-height: calc(100vh - 130px);
+  overflow-y: auto;
+  box-shadow: var(--shadow-sm);
+}
+
+.sidebar-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--text-mim);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  color: var(--text-dim);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 880px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+.topic-list { display: flex; flex-direction: column; gap: 4px; }
+
+.topic-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: var(--text-dim);
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.12s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.topic-item:hover { background: var(--bg-2); color: var(--text); }
+.topic-item.active {
+  background: var(--gold-bg);
+  color: var(--gold-deep);
+  border-color: var(--gold);
+  font-weight: 600;
+}
+.topic-item .badge {
+  font-size: 10px;
+  background: var(--bg-2);
+  color: var(--text-dim);
+  padding: 2px 6px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.topic-item.active .badge { background: var(--gold); color: #fff; }
+
+/* ---------- Content ---------- */
+.content {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 28px;
+  min-height: 540px;
+  box-shadow: var(--shadow-sm);
+}
+
+.placeholder {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-dim);
+}
+.placeholder h2 { font-weight: 700; color: var(--text); margin-bottom: 8px; }
+
+.topic-head {
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.topic-head h2 {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.topic-head p { color: var(--text-dim); margin-top: 4px; font-size: 14px; }
+.topic-head .meta {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--gold-bg);
+  color: var(--gold-deep);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin: 24px 0 12px;
+}
+
+/* ---------- Formula cards ---------- */
+.formula-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.formula-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.formula-card:hover { border-color: var(--gold); transform: translateY(-2px); box-shadow: var(--shadow); }
+.formula-card h4 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold-deep);
+  margin-bottom: 8px;
+}
+.formula-card .expr {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--gold-bg);
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  display: inline-block;
+  border: 1px solid var(--gold-tint);
+}
+.formula-card p {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* ---------- Skills list ---------- */
+.skills {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.skill {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+}
+.skill::before {
+  content: '✓';
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: var(--gold);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+  margin-top: 1px;
+}
+
+/* ---------- Tool card ---------- */
+.tool-card {
+  background: var(--gold-bg);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+}
+.tool-card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gold-deep);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tool-card h3::before { content: '▶'; font-size: 12px; }
+.tool-card p { font-size: 13px; color: var(--text-dim); margin-bottom: 12px; }
+
+/* ---------- Interactive tools ---------- */
+.tool-input {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.tool-input input, .tool-input select {
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid var(--line-2);
+  color: var(--text);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+}
+.tool-input input:focus, .tool-input select:focus { border-color: var(--gold); }
+
+.tool-output {
+  background: #fff;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-family: ui-monospace, monospace;
+  color: var(--text);
+  font-size: 14px;
+  min-height: 24px;
+  border: 1px solid var(--line);
+}
+.tool-output .hint { color: var(--text-dim); font-style: italic; }
+
+/* Multiplication / division practice */
+.practice { display: flex; flex-direction: column; gap: 14px; }
+.practice-q { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 600; color: var(--text); }
+.practice-q input {
+  width: 100px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid var(--line-2);
+  color: var(--text);
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+}
+.practice-q input.correct { border-color: #2e7d32; color: #2e7d32; }
+.practice-q input.wrong   { border-color: #c62828; color: #c62828; }
+.practice-controls { display: flex; gap: 10px; }
+.practice-stats { color: var(--text-dim); font-size: 13px; }
+
+/* Count visualizer */
+.count-vis {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 4px;
+  margin: 8px 0;
+}
+.count-vis .dot {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--gold);
+}
+.count-vis .dot.off { background: #fff; border: 1px solid var(--line-2); }
+
+/* Fraction / shape svg visualizations */
+.viz-svg {
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
+  display: block;
+}
+
+/* Slope visualizer */
+.slope-graph {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.slope-graph canvas, .slope-graph svg { width: 100%; height: 200px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+
+/* pythag / quadratic inputs */
+.formula-result {
+  font-family: ui-monospace, monospace;
+  color: var(--text);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+}
+
+/* ---------- Modal ---------- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(8px);
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+.modal-backdrop[hidden] { display: none; }
+
+.modal {
+  width: 100%;
+  max-width: 380px;
+  background: #fff;
+  border: 1px solid var(--line-2);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+}
+.modal h2 { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+.muted { color: var(--text-dim); font-size: 13px; margin-bottom: 18px; }
+
+.modal label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+  margin-top: 12px;
+}
+.modal input {
+  width: 100%;
+  padding: 10px 14px;
+  background: #fff;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 15px;
+  outline: none;
+}
+.modal input:focus { border-color: var(--gold); }
+.modal-error {
+  background: rgba(198, 40, 40, 0.08);
+  border: 1px solid #c62828;
+  color: #c62828;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* easter-egg success notice */
+.unlock-notice {
+  background: var(--gold-bg);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  padding: 18px;
+  margin-top: 16px;
+  color: var(--gold-deep);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-0); }
+::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--line); }
+
+/* ---------- Accessibility ---------- */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: var(--gold);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 0 0 8px 0;
+  font-weight: 600;
+  z-index: 1000;
+  transition: top 0.15s;
+}
+.skip-link:focus { top: 0; }
+
+:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* topic pills keyboard focus */
+.topic-item:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ---------- Tool intro line + field labelling ---------- */
+.tool-intro {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.tool-intro strong { color: var(--gold-deep); font-weight: 700; }
+.tool-intro code {
+  background: #fff;
+  border: 1px solid var(--line);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.field {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+.field input {
+  width: 80px;
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid var(--line-2);
+  color: var(--text);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.field input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.12);
+}
+.field-label {
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+}
+.field-suffix {
+  color: var(--text-mute);
+  font-weight: 400;
+}
+
+
+.view { display: none; }
+.view.active { display: block; }
+#vkHomeView.minHeight { min-height: 100vh; position: relative; }
+/* Keep the Viking dark theme OFF the math view: body gets .vk, so win by id specificity. */
+#vkMathView { min-height: 100vh; background: var(--bg-0, #ffffff); color: var(--text, #1a1a1a); }
+body.vk #vkMathView { background: var(--bg-0, #ffffff); color: var(--text, #1a1a1a); }
+body.vk #vkMathView a { color: var(--gold, #d4a017); }
+</style>
+</head>
+<body class="vk">
+
+<!-- ============ VIEW 1: VIKING HOME ============ -->
+<div id="vkHomeView" class="view active vk minHeight">
+  <ul class="vk-nav">
+    <li style="margin-left:-1px;margin-top:2px"><span class="logo">⚡</span></li>
+    <hr style="margin-top:5px"><li><a href="#" id="vNavHome" class="active">⌂</a></li><hr>
+    <li><a href="#" id="vNavMath">∑</a></li><hr>
+    <li><a href="#" id="vNavProxy">⇄</a></li>
+  </ul>
+  <div class="vk-blob"></div><div class="vk-b2"></div><div class="vk-b3"></div><div class="vk-b4"></div>
+  <div class="vk-home">
+    <h1>Welcome to <span class="typewrite" data-period="2000" data-type='[ "Viking.","adventure.","exploration.", "power.","the open web.","valhalla.","freedom.","speed.","the seven seas.","your gateway.","aesthetic.","privacy."]'><span class="wrap"></span></span></h1>
+    <p>Search, browse, and explore — powered by an open proxy.</p>
+    <div class="vk-search" id="vkHomeSearch">
+      <input id="vkHomeInput" placeholder="Search or enter a URL…" aria-label="Search or enter URL" />
+      <button id="vkHomeBtn">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ VIEW 2: MATH (Openmathlearning) ============ -->
+<div id="vkMathView" class="view">
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <div class="logo-mark" aria-hidden="true">∑</div>
+      <div><h1>Openmathlearning</h1><p class="tagline">Formulas &amp; skills — Kindergarten through 12<sup>th</sup></p></div>
+    </div>
+    <div class="topbar-actions">
+      <button id="signInBtn" class="ghost-btn" aria-label="Sign in"><span class="lock-ico" aria-hidden="true">🔒</span> Sign in</button>
+    </div>
+  </header>
+  <main class="app" id="main" role="main">
+    <section class="grades" id="gradePicker" aria-label="Choose grade" role="tablist"></section>
+    <div class="layout">
+      <aside class="sidebar" id="sidebar" aria-label="Topics">
+        <h2 class="sidebar-title">Topics</h2>
+        <div class="topic-list" id="topicList" role="tablist"></div>
+      </aside>
+      <section class="content" id="content" aria-live="polite">
+        <div class="placeholder"><h2>Pick a topic to start learning</h2><p>Use the grade selector above to filter, then pick a topic on the left.</p></div>
+      </section>
+    </div>
+  </main>
+  <div class="modal-backdrop" id="signinModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="signinTitle">
+      <h2 id="signinTitle">Sign in</h2>
+      <p class="muted">Press to enter the realm of the Vikings.</p>
+      <form id="signinForm" novalidate>
+        <label>Username<input type="text" id="signinUser" autocomplete="username" required /></label>
+        <label>Password<input type="password" id="signinPass" autocomplete="current-password" required /></label>
+        <div class="modal-error" id="signinError" hidden role="alert"></div>
+        <div class="modal-actions">
+          <button type="button" class="ghost-btn" id="signinCancel">Cancel</button>
+          <button type="submit" class="primary-btn">Sign in</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <button class="ghost-btn" id="vMathBack" style="margin-left:28px;margin-bottom:20px;">← Back to Viking</button>
+</div>
+
+<!-- ============ VIEW 3: PROXY (client-side) ============ -->
+<div id="vkProxyView" class="view">
+  <ul class="vk-nav">
+    <li style="margin-left:-1px;margin-top:2px"><span class="logo">⚡</span></li>
+    <hr style="margin-top:5px"><li><a href="#" id="pNavHome">⌂</a></li><hr>
+    <li><a href="#" id="pNavMath">∑</a></li><hr>
+    <li><a href="#" id="pNavProxy" class="active">⇄</a></li>
+  </ul>
+  <div class="vk-util" id="pUtil">
+    <div class="ic" id="pBack">←</div>
+    <div class="ic" id="pRefresh">↻</div>
+    <div class="ic" id="pFwd">→</div>
+    <input class="addr" id="pAddr" placeholder="Enter URL or search…" />
+    <div class="ic" id="pFull" style="margin-left:auto">⛶</div>
+  </div>
+  <div class="vk-util" style="display:none;"></div>
+  <div class="vk-home" id="pCenter" style="left:calc(70px + 50%);">
+    <h1 style="font-size:clamp(34px,6vw,60px)">VIKING PROXY</h1>
+    <p>Type a URL or a search — everything flows through the open proxy.</p>
+    <div class="vk-search" id="pSearch">
+      <input id="pInput" placeholder="Search or enter URL…" />
+      <button id="pBtn">➤</button>
+    </div>
+  </div>
+  <div class="vk-results" id="pResults"><div id="pResultsInner"></div></div>
+  <iframe class="vk-frame" id="pFrame"></iframe>
+  <div class="vk-spin" id="pSpin"><div class="ring"></div></div>
+</div>
+
+<script>
+/* ============================= BOOT / VIEW SWITCH ============================= */
+function showView(id){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.body.classList.toggle('vk', true);
+  if(id === 'vkMathView'){ if(typeof initMath==='function') initMath(); }
+  if(id === 'vkProxyView'){ if(typeof initProxy==='function') initProxy(); }
+}
+document.getElementById('vNavHome').addEventListener('click', e=>{e.preventDefault(); showView('vkHomeView');});
+document.getElementById('vNavMath').addEventListener('click', e=>{e.preventDefault(); showView('vkMathView');});
+document.getElementById('vNavProxy').addEventListener('click', e=>{e.preventDefault(); showView('vkProxyView');});
+document.getElementById('vMathBack').addEventListener('click', ()=>showView('vkHomeView'));
+
+/* ============================= VIKING HOME: typewriter + search ============================= */
+(function(){
+  var TxtType=function(el,toRotate,period){this.toRotate=toRotate;this.el=el;this.loopNum=0;this.period=parseInt(period,10)||2000;this.txt='';this.tick();this.isDeleting=false;};
+  TxtType.prototype.tick=function(){var i=this.loopNum%this.toRotate.length;var fullTxt=this.toRotate[i];this.txt=this.isDeleting?fullTxt.substring(0,this.txt.length-1):fullTxt.substring(0,this.txt.length+1);this.el.innerHTML='<span class="wrap">'+this.txt+'</span>';var that=this;var delta=200-Math.random()*100;if(this.isDeleting){delta/=2;}if(!this.isDeleting&&this.txt===fullTxt){delta=this.period;this.isDeleting=true;}else if(this.isDeleting&&this.txt===''){this.isDeleting=false;this.loopNum++;delta=500;}setTimeout(function(){that.tick();},delta);};
+  var els=document.getElementsByClassName('typewrite');
+  for(var i=0;i<els.length;i++){var t=els[i].getAttribute('data-type');var p=els[i].getAttribute('data-period');if(t){new TxtType(els[i],JSON.parse(t),p);}}
+  window.vkHomeSearch = function(){
+    var q=document.getElementById('vkHomeInput').value.trim();
+    if(q){ showView('vkProxyView'); window.vkOpenSearch && window.vkOpenSearch(q); }
+  };
+  document.getElementById('vkHomeBtn').addEventListener('click', vkHomeSearch);
+  document.getElementById('vkHomeInput').addEventListener('keydown', function(e){ if(e.key==='Enter'){e.preventDefault(); vkHomeSearch();} });
+})();
+</script>
+
+<script>
+/* ============================= PROXY (client-side, open-source) ============================= */
+const CORS_PROXIES = [
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u),
+  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
+  u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+  u => 'https://cors.isomorphic-git.org/' + encodeURIComponent(u)
+];
+function b64enc(s){ return btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function b64dec(s){ s=s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4)s+='='; return decodeURIComponent(escape(atob(s))); }
+const P_URL = new RegExp('^(https?:\\/\\/)?((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|((\\d{1,3}\\.){3}\\d{1,3}))(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*(\\?[;&a-z\\d%_.~+=-]*)?(#.*)?$','i');
+function esc(s){ return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+let proxyInit = false;
+function initProxy(){
+  if(proxyInit) return; proxyInit = true;
+  const center=document.getElementById('pCenter'), results=document.getElementById('pResults'),
+        inner=document.getElementById('pResultsInner'), util=document.getElementById('pUtil'),
+        frame=document.getElementById('pFrame'), spin=document.getElementById('pSpin'),
+        addr=document.getElementById('pAddr'), input=document.getElementById('pInput');
+
+  function spinOn(o){ spin.style.display = o ? 'block':'none'; }
+  async function fetchHtml(target){
+    spinOn(true);
+    for(const t of CORS_PROXIES){
+      try{
+        const r=await fetch(t(target),{method:'GET'});
+        const ct=r.headers.get('content-type')||'';
+        if(ct.includes('application/json')){ const j=await r.json(); if(j&&j.contents) return j.contents; }
+        else { const tx=await r.text(); if(tx&&tx.length>400) return tx; }
+      }catch(e){}
+    }
+    return null;
+  }
+  function rewrite(doc, base){
+    const b=new URL(base);
+    const re=(url)=>{ if(!url)return url; if(/^(javascript:|data:|#|mailto:|tel:)/i.test(url))return url; try{return '#proxy='+b64enc(new URL(url,b).toString());}catch(e){return url;} };
+    doc.querySelectorAll('a[href]').forEach(a=>a.setAttribute('href', re(a.getAttribute('href'))));
+    doc.querySelectorAll('form').forEach(f=>{ if(f.action)f.action=re(f.action); });
+    return doc;
+  }
+  function injectInterceptor(h){
+    const s='<'+'script>(function(){document.addEventListener("click",function(e){var t=e.target;while(t&&t.tagName!=="A")t=t.parentNode;if(t&&t.tagName==="A"){var h=t.getAttribute("href")||"";if(h.indexOf("#proxy=")===0){e.preventDefault();e.stopPropagation();var b=h.slice(7).replace(/-/g,"+").replace(/_/g,"/");while(b.length%4)b+="=";var u=decodeURIComponent(escape(atob(b)));if(window.parent&&window.parent.vkLoadProxy)window.parent.vkLoadProxy(u);}else if(/^https?:\/\//i.test(h)){e.preventDefault();if(window.parent&&window.parent.vkLoadProxy)window.parent.vkLoadProxy(h);}}},true);})();<'+'/script>';
+    if(/<\/body>/i.test(h)) return h.replace(/<\/body>/i, s+'</body>');
+    return h + s;
+  }
+  async function renderUrl(target){
+    spinOn(true);
+    const html=await fetchHtml(target);
+    if(html==null){ spinOn(false); addr.value=''; return; }
+    const doc=new DOMParser().parseFromString(html,'text/html');
+    rewrite(doc,target);
+    let out='<!DOCTYPE html>'+doc.documentElement.outerHTML;
+    out=out.replace(/<script[\s\S]*?<\/script>/gi,'');
+    out=injectInterceptor(out);
+    frame.srcdoc=out; spinOn(false);
+  }
+  function enterSite(url){
+    center.style.display='none'; results.style.display='none';
+    util.style.display='flex'; frame.style.display='block';
+    addr.value=url; renderUrl(url);
+  }
+  window.vkLoadProxy = function(u){ enterSite(u); };
+
+  function parseResults(html,baseUrl){
+    const links=[]; const re=/<a[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi; let m;
+    while((m=re.exec(html))){
+      const href=m[1], text=m[2].replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+      if(!text||text.length<6)continue;
+      if(/javascript:|bing\.com\/(search|images)|duckduckgo\.com|cloudflare|5xx-error/i.test(href))continue;
+      let abs; try{abs=new URL(href,baseUrl).toString();}catch(e){continue;}
+      if(!/^https?:/.test(abs))continue;
+      links.push({title:text,url:abs});
+    }
+    const seen=new Set(); return links.filter(l=>seen.has(l.url)?false:(seen.add(l.url),true));
+  }
+  async function doSearch(q){
+    if(P_URL.test(q)){ enterSite(q.includes('://')?q:'http://'+q); return; }
+    center.style.display='none'; results.style.display='block';
+    inner.innerHTML='<p style="color:#888">Searching…</p>';
+    const engines=[
+      ['Bing','https://www.bing.com/search?q=','https://www.bing.com'],
+      ['Mojeek','https://www.mojeek.com/search?q=','https://www.mojeek.com'],
+      ['DDG','https://lite.duckduckgo.com/lite/?q=','https://lite.duckduckgo.com'],
+      ['Startpage','https://www.startpage.com/sp/search?query=','https://www.startpage.com']
+    ];
+    for(const [name,url,base] of engines){
+      let html;
+      try{ html=await fetchHtml(url+encodeURIComponent(q)); }catch(_e){ html=null; }
+      if(!html)continue;
+      const items=parseResults(html,base);
+      if(items.length===0)continue;
+      inner.innerHTML='<p style="color:#b8860b;font-size:13px;margin-bottom:14px;">Results from '+esc(name)+' — '+items.length+' found</p>'+items.slice(0,20).map(r=>'<div class="vk-result"><span class="u">'+esc(r.url)+'</span><a class="t" data-url="'+esc(r.url)+'" href="#">'+esc(r.title)+'</a><p class="s">Click to open through the proxy.</p></div>').join('');
+      inner.querySelectorAll('a.t').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();enterSite(a.dataset.url);});});
+      return;
+    }
+    inner.innerHTML='<p style="color:#ff5555">Search failed — the free CORS proxies are rate-limited right now. Try again in a moment or type a full URL instead.</p>';
+  }
+
+  window.vkOpenSearch = function(q){ doSearch(q); };
+
+  function submit(v){ if(v) doSearch(v); }
+  document.getElementById('pBtn').addEventListener('click', ()=>submit(input.value.trim()));
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter'){e.preventDefault(); submit(input.value.trim());} });
+  addr.addEventListener('keydown', e=>{ if(e.key==='Enter'){e.preventDefault(); submit(addr.value.trim());} });
+  document.getElementById('pBack').addEventListener('click', ()=>history.back());
+  document.getElementById('pFwd').addEventListener('click', ()=>history.forward());
+  document.getElementById('pRefresh').addEventListener('click', ()=>{ if(frame.srcdoc) renderUrl(addr.value); });
+  document.getElementById('pFull').addEventListener('click', ()=>{ if(document.fullscreenElement) document.exitFullscreen?.(); else document.documentElement.requestFullscreen?.(); });
+  document.getElementById('pNavHome').addEventListener('click', e=>{e.preventDefault(); showView('vkHomeView');});
+  document.getElementById('pNavMath').addEventListener('click', e=>{e.preventDefault(); showView('vkMathView');});
+  document.getElementById('pNavProxy').addEventListener('click', e=>{e.preventDefault(); showView('vkProxyView');});
+}
+
+/* ============================= MATH ============================= */
+const GRADES =[{id:'K',label:'Kindergarten',short:'K'},{id:'1',label:'Grade 1',short:'1st'},{id:'2',label:'Grade 2',short:'2nd'},{id:'3',label:'Grade 3',short:'3rd'},{id:'4',label:'Grade 4',short:'4th'},{id:'5',label:'Grade 5',short:'5th'},{id:'6',label:'Grade 6',short:'6th'},{id:'7',label:'Grade 7',short:'7th'},{id:'8',label:'Grade 8',short:'8th'},{id:'9',label:'Algebra I',short:'9th'},{id:'10',label:'Geometry',short:'10th'},{id:'11',label:'Algebra II',short:'11th'},{id:'12',label:'Calculus&Stats',short:'12th'},];const CONTENT ={'K':{topics:[{id:'counting',title:'Counting&Number Sense',blurb:'Building the foundation:count,compare,and recognize numbers up to 20.',formulas:[{name:'Counting On',formula:'start,then+1 each step',description:'Begin at a number and say the next one to count up.'},{name:'One More/One Less',formula:'n+1,n − 1',description:'Find the next or previous whole number.'},],skills:['Count forward to 100 by ones','Count forward to 100 by tens','Recognize written numerals 0–20','Compare two groups:more,fewer,equal',],tool:'count',},{id:'shapes',title:'2D and 3D Shapes',blurb:'Name and describe the shapes around us.',formulas:[{name:'2D shapes',formula:'circle • triangle • square • rectangle • hexagon',description:'Flat shapes with a name you can recognize.'},{name:'3D shapes',formula:'cube • sphere • cylinder • cone',description:'Solid shapes you can hold.'},],skills:['Name common 2D shapes','Name common 3D shapes','Sort shapes by attribute(rolls,slides,stacks)',],},{id:'add-sub-10',title:'Addition&Subtraction Within 10',blurb:'Combine and take away small groups fluently.',formulas:[{name:'Addition',formula:'a+b=c',description:'Put together two groups.'},{name:'Subtraction',formula:'a − b=c',description:'Take away some from a group.'},],skills:['Add within 10','Subtract within 10','Use fingers or drawings to model',],tool:'addsub',},],},'1':{topics:[{id:'place-value',title:'Place Value(Two Digits)',blurb:'Understand tens and ones — the basis of all whole-number arithmetic.',formulas:[{name:'Two-digit number',formula:'10·tens+1·ones',description:'A two-digit number is made of tens and ones.'},{name:'Compare',formula:'>,<,=',description:'Compare using place value:more tens ⇒ larger number.'},],skills:['Read and write numbers to 120','Bundle 10 ones into a ten','Compare two numbers using<,>,=',],},{id:'add-sub-20',title:'Addition&Subtraction Within 20',blurb:'Strategies for adding and subtracting across the tens boundary.',formulas:[{name:'Make a ten',formula:'7+5=7+3+2=10+2',description:'Break a number to fill the next ten,then add the rest.'},{name:'Count back',formula:'n − k:start at n,count back k steps',description:'A subtraction strategy for small numbers.'},],skills:['Add within 20 using strategies','Subtract within 20 using strategies','Solve word problems with add/sub',],tool:'addsub',},{id:'time',title:'Telling Time',blurb:'Read clocks to the hour and half hour.',formulas:[{name:'Hours',formula:'12 numbers around a clock',description:'A clock face has 12 numbers.'},{name:'Minute hand',formula:'60 minutes=1 hour',description:'A full hour on the analog clock.'},],skills:['Tell time to the hour','Tell time to the half hour','Order daily events by time',],},],},'2':{topics:[{id:'add-sub-100',title:'Addition&Subtraction Within 100',blurb:'Use place value to add and subtract two-and three-digit numbers.',formulas:[{name:'Two-digit addition',formula:'(a+b)ones+(c+d)tens',description:'Add each place value,then combine.'},{name:'Two-digit subtraction',formula:'a − b=(10·tens+ones)− b',description:'Regroup as needed.'},],skills:['Add within 100 using strategies','Subtract within 100 using strategies','Solve one-and two-step word problems',],tool:'addsub',},{id:'money',title:'Money',blurb:'Count coins and bills up to a dollar.',formulas:[{name:'Pennies',formula:'1¢ each',description:'The smallest US coin.'},{name:'Nickel',formula:'5¢=5 pennies',description:'Worth five pennies.'},{name:'Dime',formula:'10¢=2 nickels',description:'Worth ten pennies.'},{name:'Quarter',formula:'25¢=5 nickels',description:'Worth twenty-five pennies.'},],skills:['Identify coins and bills','Count mixed coins','Make change under $1',],},{id:'measurement',title:'Length&Measurement',blurb:'Measure using inches,feet,centimeters,and meters.',formulas:[{name:'Inches&feet',formula:'1 ft=12 in',description:'Twelve inches make one foot.'},{name:'Centimeters&meters',formula:'1 m=100 cm',description:'One hundred centimeters make one meter.'},],skills:['Estimate length','Measure with a ruler','Compare two lengths',],},],},'3':{topics:[{id:'mult-div',title:'Multiplication&Division Basics',blurb:'Arrays,repeated addition,and the times tables through 10.',formulas:[{name:'Multiplication',formula:'a × b=sum of a repeated b times',description:'Multiplication is repeated addition.'},{name:'Division',formula:'a ÷ b=c(when b · c=a)',description:'Division undoes multiplication.'},],skills:['Memorize × table for 0,1,2,5,10','Use arrays to model ×','Skip-count by 3s,4s,6s,7s,8s,9s',],tool:'mul',},{id:'fractions-intro',title:'Introduction to Fractions',blurb:'A fraction is a part of a whole — equal shares.',formulas:[{name:'Fraction',formula:'a/b(a=numerator,b=denominator)',description:'Reads "a out of b equal parts."'},{name:'Unit fractions',formula:'1/b',description:'One part of a whole split into b pieces.'},],skills:['Identify fractions on a number line','Recognize equivalent fractions(visually)','Compare fractions with the same denominator',],tool:'frac',},{id:'area-perimeter',title:'Area&Perimeter',blurb:'Measure the boundary and inside of rectangles.',formulas:[{name:'Perimeter(rectangle)',formula:'P=2(l+w)',description:'Add up the four sides(two of each length).'},{name:'Area(rectangle)',formula:'A=l × w',description:'Multiply length by width.'},],skills:['Count unit squares to find area','Measure perimeters of shapes','Solve area/perimeter word problems',],},],},'4':{topics:[{id:'mult-multi',title:'Multi-Digit Multiplication',blurb:'Multiply whole numbers up to four digits by one-or two-digit numbers.',formulas:[{name:'Partial products',formula:'(a+b)·c=a·c+b·c',description:'Distribute to multiply larger numbers.'},{name:'Standard algorithm',formula:'line up by place value',description:'Multiply,carry,repeat for each digit.'},],skills:['Multiply up to 4-digit by 1-digit','Multiply 2-digit by 2-digit','Estimate products',],tool:'mul',},{id:'fractions-equiv',title:'Equivalent Fractions&Comparison',blurb:'Same value,different faces — and how to compare them.',formulas:[{name:'Equivalent fractions',formula:'(a·k)/(b·k)=a/b',description:'Multiply top and bottom by the same number.'},{name:'Compare',formula:'cross-multiply:a/b?c/d ⇒ a·d?c·b',description:'Compare fractions by cross-multiplying.'},],skills:['Generate equivalent fractions','Compare two fractions with unlike denominators','Add/subtract fractions with like denominators',],tool:'frac',},{id:'decimals',title:'Decimals',blurb:'Tenths and hundredths — the bridge between fractions and whole numbers.',formulas:[{name:'Decimal',formula:'0.1=1/10,0.01=1/100',description:'Place-value extensions of the base-10 system.'},{name:'Compare',formula:'0.7>0.65',description:'Compare digit by digit from the left.'},],skills:['Read and write decimals to hundredths','Compare decimals','Add and subtract decimals',],tool:'frac',},{id:'angles',title:'Angles&Measurement',blurb:'Identify,measure,and draw angles.',formulas:[{name:'Right angle',formula:'=90°',description:'A square corner.'},{name:'Acute/Obtuse',formula:'<90°/>90°',description:'Smaller or larger than a right angle.'},{name:'Sum of angles in a triangle',formula:'180°',description:'Always true,no matter the triangle.'},{name:'Sum of angles in a quadrilateral',formula:'360°',description:'Always true for any 4-sided polygon.'},],skills:['Measure with a protractor','Classify angles','Find unknown angles in diagrams',],},],},'5':{topics:[{id:'div-multi',title:'Multi-Digit Division',blurb:'Long division and dividing with remainders.',formulas:[{name:'Long division',formula:'dividend ÷ divisor=quotient R remainder',description:'Divide,multiply,subtract,bring down — repeat.'},{name:'Check by multiplication',formula:'quotient · divisor+remainder=dividend',description:'Always check your answer.'},],skills:['Divide 4-digit by 2-digit','Interpret remainders','Estimate quotients',],tool:'mul',},{id:'fractions-arith',title:'Fraction Arithmetic',blurb:'Add,subtract,and multiply fractions.',formulas:[{name:'Add(unlike)',formula:'a/b+c/d=(ad+bc)/bd',description:'Find a common denominator,then add numerators.'},{name:'Multiply',formula:'(a/b)·(c/d)=(ac)/(bd)',description:'Multiply across:top × top,bottom × bottom.'},],skills:['Add/subtract fractions with unlike denominators','Multiply a fraction by a whole','Solve multi-step problems',],tool:'frac',},{id:'volume',title:'Volume',blurb:'3D measurement — how much fits inside a box.',formulas:[{name:'Rectangular prism volume',formula:'V=l · w · h',description:'Multiply the three dimensions.'},{name:'Unit cubes',formula:'1 cubic unit',description:'Each cube counts as one unit.'},],skills:['Count unit cubes to find volume','Apply the V=lwh formula','Solve word problems',],},{id:'decimals-arith',title:'Decimal Arithmetic',blurb:'Add,subtract,multiply,and divide decimals.',formulas:[{name:'Multiply decimals',formula:'1.5 · 0.4=0.60',description:'Multiply,then place the decimal point.'},{name:'Divide decimals',formula:'shift decimal to make divisor whole',description:'Same digit count,just scaled.'},],skills:['Add/subtract decimals','Multiply decimals','Divide decimals by whole numbers',],tool:'frac',},],},'6':{topics:[{id:'ratios',title:'Ratios&Rates',blurb:'Compare quantities with division — and convert units.',formulas:[{name:'Ratio',formula:'a:b or a/b',description:'A comparison of two quantities.'},{name:'Unit rate',formula:'a/b(with b=1)',description:'How much of a per one unit of another.'},{name:'Proportion',formula:'a/b=c/d(cross-multiply to solve)',description:'Two equal ratios.'},],skills:['Write ratios from real situations','Find unit rates','Solve proportions',],tool:'ratio',},{id:'integers',title:'Integers&Operations',blurb:'Work below zero:signed numbers and four-quadrant coordinate grids.',formulas:[{name:'Adding negatives',formula:'-3+-5=-8',description:'Same sign,add and keep.'},{name:'Subtracting negatives',formula:'a −(−b)=a+b',description:'Subtracting a negative is adding a positive.'},{name:'Multiplying negatives',formula:'− × −=+;− ×+=−',description:'Same signs give positive,different signs give negative.'},],skills:['Locate integers on a number line','Add/subtract/multiply integers','Plot points in four quadrants',],},{id:'expressions',title:'Expressions&One-Step Equations',blurb:'Translate words into math — and start solving for unknowns.',formulas:[{name:'Variable',formula:'a letter standing for a number',description:'Usually x,y,or n.'},{name:'One-step equation',formula:'x+5=12 ⇒ x=7',description:'Use inverse operations to isolate x.'},{name:'Distributive property',formula:'a(b+c)=ab+ac',description:'Multiply across a sum.'},],skills:['Translate words to expressions','Evaluate expressions','Solve one-step equations',],},{id:'percent',title:'Percent',blurb:'Out of 100 — and out of anything.',formulas:[{name:'Percent of a number',formula:'p% · n=(p/100)· n',description:'Convert percent to a decimal first.'},{name:'Percent change',formula:'(new − old)/old · 100%',description:'Relative change between two values.'},],skills:['Find percent of a number','Solve percent problems','Compute tips,tax,discounts',],tool:'pct',},],},'7':{topics:[{id:'proportions',title:'Proportional Reasoning',blurb:'Direct and inverse proportions — and the constant of proportionality.',formulas:[{name:'Direct proportion',formula:'y=kx',description:'Both grow together at constant rate k.'},{name:'Inverse proportion',formula:'y=k/x',description:'One grows as the other shrinks.'},],skills:['Identify proportional relationships from tables','Find the constant of proportionality','Solve multi-step ratio problems',],tool:'ratio',},{id:'linear-eq',title:'Linear Equations',blurb:'Solve two-sided equations and start graphing lines.',formulas:[{name:'Two-step equation',formula:'2x+3=11 ⇒ x=4',description:'Subtract,then divide.'},{name:'Variables on both sides',formula:'2x+3=x+7 ⇒ x=4',description:'Gather like terms on one side.'},{name:'Slope-intercept form',formula:'y=mx+b',description:'m is slope,b is y-intercept.'},{name:'Slope',formula:'m=(y2 − y1)/(x2 − x1)',description:'Rise over run.'},],skills:['Solve two-step and multi-step equations','Graph a line from y=mx+b','Find slope between two points',],tool:'slope',},{id:'probability',title:'Probability&Statistics',blurb:'Chances and the spread of data.',formulas:[{name:'Probability',formula:'P(event)=favorable/total',description:'Always between 0 and 1.'},{name:'Mean',formula:'mean=sum/count',description:'Average of a data set.'},{name:'Median',formula:'middle value when sorted',description:'Splits data in half.'},],skills:['Calculate simple probabilities','Find mean,median,mode','Read box plots and histograms',],tool:'pct',},{id:'geometry-basics',title:'Geometry:Circles&Area',blurb:'Pi and area formulas for circles and triangles.',formulas:[{name:'Circumference',formula:'C=2πr',description:'Distance around a circle.'},{name:'Area of a circle',formula:'A=πr²',description:'Space inside a circle.'},{name:'Area of a triangle',formula:'A=½ · b · h',description:'Half of base times height.'},],skills:['Estimate π ≈ 3.14','Compute area and circumference','Solve mixed-shape problems',],tool:'circle',},],},'8':{topics:[{id:'functions',title:'Functions&Linear Models',blurb:'Function notation and writing the equation of a line.',formulas:[{name:'Function notation',formula:'f(x)=mx+b',description:'Reads "f of x equals..."'},{name:'Point-slope form',formula:'y − y₁=m(x − x₁)',description:'Use one known point and the slope.'},{name:'Standard form',formula:'Ax+By=C',description:'A line as an equation in two variables.'},],skills:['Identify functions','Write equations of lines','Compare slopes of parallel/perpendicular lines',],tool:'slope',},{id:'systems',title:'Systems of Equations',blurb:'Two equations,two unknowns — solve together.',formulas:[{name:'Substitution',formula:'solve one eq for a variable,plug into the other',description:'Best when one variable is already isolated.'},{name:'Elimination',formula:'add/subtract eqs to remove a variable',description:'Best when coefficients line up.'},],skills:['Solve by substitution','Solve by elimination','Interpret in context',],tool:'sys',},{id:'pythagorean',title:'The Pythagorean Theorem',blurb:'The most famous theorem in all of math.',formulas:[{name:'Pythagorean theorem',formula:'a²+b²=c²',description:'a,b are legs;c is the hypotenuse.'},{name:'Distance formula',formula:'d=√((x₂−x₁)²+(y₂−y₁)²)',description:'A 2D version of the Pythagorean theorem.'},],skills:['Find missing sides in right triangles','Identify Pythagorean triples(3-4-5,5-12-13)','Apply the distance formula',],tool:'pythag',},{id:'transformations',title:'Transformations',blurb:'Sliding,flipping,rotating,and scaling figures.',formulas:[{name:'Translation',formula:'(x,y)→(x+a,y+b)',description:'Slide by(a,b).'},{name:'Reflection(x-axis)',formula:'(x,y)→(x,−y)',description:'Flip over the x-axis.'},{name:'Rotation(90° CCW)',formula:'(x,y)→(−y,x)',description:'Quarter turn counterclockwise.'},{name:'Dilation',formula:'(x,y)→(kx,ky)',description:'Scale by factor k.'},],skills:['Identify transformations from rules','Apply rules to points','Recognize congruence vs.similarity',],},],},'9':{topics:[{id:'linear-deep',title:'Linear Functions&Inequalities',blurb:'Modeling with lines and solving compound inequalities.',formulas:[{name:'Slope-intercept form',formula:'y=mx+b',description:'Quickest way to graph a line.'},{name:'Compound inequality',formula:'−3<x<5',description:'Two inequalities in one.'},{name:'Absolute value equation',formula:'|x|=a ⇒ x=±a',description:'Two solutions when a>0.'},],skills:['Write linear models','Solve compound inequalities','Graph absolute value functions',],tool:'slope',},{id:'exponents-radicals',title:'Exponents&Radicals',blurb:'Powers,roots,and the rules that connect them.',formulas:[{name:'Product rule',formula:'xᵃ · xᵇ=xᵃ⁺ᵇ',description:'Same base,add exponents.'},{name:'Power rule',formula:'(xᵃ)ᵇ=xᵃᵇ',description:'Multiply exponents when raising to a power.'},{name:'Negative exponent',formula:'x⁻ᵃ=1/xᵃ',description:'A reciprocal with a positive exponent.'},{name:'Radical ↔ exponent',formula:'ⁿ√(xᵃ)=xᵃ/ⁿ',description:'Roots are fractional exponents.'},],skills:['Apply exponent rules','Simplify radicals','Convert between forms',],},{id:'quadratic',title:'Quadratics',blurb:'Polynomials of degree two — and their parabolic graphs.',formulas:[{name:'Standard form',formula:'ax²+bx+c=0',description:'A quadratic equation in standard form.'},{name:'Quadratic formula',formula:'x=(−b ± √(b² − 4ac))/2a',description:'Solves any quadratic.'},{name:'Vertex form',formula:'y=a(x − h)²+k',description:'(h,k)is the vertex.'},{name:'Factored form',formula:'y=a(x − r₁)(x − r₂)',description:'Roots r₁,r₂ are the x-intercepts.'},{name:'Discriminant',formula:'Δ=b² − 4ac',description:'Δ>0:two roots;Δ=0:one;Δ<0:none(reals).'},],skills:['Solve by factoring','Apply the quadratic formula','Find the vertex',],tool:'quad',},{id:'polynomials',title:'Polynomial Operations',blurb:'Add,subtract,multiply,and divide polynomials.',formulas:[{name:'Add/subtract',formula:'like terms:combine',description:'Group by degree.'},{name:'Multiply(FOIL)',formula:'(a+b)(c+d)=ac+ad+bc+bd',description:'Each term times each term.'},{name:'Long division',formula:'(dividend)÷(divisor)=quotient',description:'Like numeric long division,with terms.'},],skills:['Add/subtract polynomials','Multiply polynomials','Divide by monomials and binomials',],},],},'10':{topics:[{id:'trig-intro',title:'Right-Triangle Trigonometry',blurb:'Sine,cosine,tangent — three ratios that unlock triangles.',formulas:[{name:'SOH-CAH-TOA',formula:'sin=opp/hyp,cos=adj/hyp,tan=opp/adj',description:'Pick the pair using which sides are known.'},{name:'Inverse trig',formula:'sin⁻¹(0.5)=30°',description:'Find an angle from a ratio.'},{name:'Pythagorean identity',formula:'sin²θ+cos²θ=1',description:'The fundamental trig identity.'},],skills:['Find sides using trig ratios','Find angles using inverse trig','Solve right-triangle word problems',],tool:'trig',},{id:'circles',title:'Circles&Arcs',blurb:'Equations and properties of circles.',formulas:[{name:'Standard form',formula:'(x − h)²+(y − k)²=r²',description:'Center(h,k),radius r.'},{name:'Tangent ⊥ radius',formula:'radius ⊥ tangent at point of tangency',description:'A key circle theorem.'},{name:'Inscribed angle',formula:'½ · central angle',description:'Inscribed angle is half the central angle subtending the same arc.'},],skills:['Graph circles','Find the center/radius from an equation','Apply circle theorems',],tool:'circle',},{id:'volume-3d',title:'3D Volume&Surface Area',blurb:'Pyramids,cones,and spheres.',formulas:[{name:'Cone volume',formula:'V=(1/3)π r² h',description:'One-third the cylinder of the same base/height.'},{name:'Sphere volume',formula:'V=(4/3)π r³',description:'Three-dimensional pi goodness.'},{name:'Sphere surface area',formula:'A=4πr²',description:'Wraps the sphere exactly four great circles.'},],skills:['Compute volumes of solids','Compute surface areas','Compare shapes',],tool:'circle',},{id:'similarity',title:'Similarity&Dilations',blurb:'Same shape,different size.',formulas:[{name:'Similar triangles',formula:'corresponding angles equal,sides proportional',description:'Definition of similarity.'},{name:'AA similarity',formula:'two angles equal ⇒ triangles similar',description:'The simplest test for similarity.'},{name:'Scale factor',formula:'k=(new side)/(old side)',description:'Linear scale factor of a dilation.'},],skills:['Prove similarity','Use proportions to find missing sides','Apply scale factor to areas(k²)and volumes(k³)',],},],},'11':{topics:[{id:'trig-identities',title:'Trigonometric Identities',blurb:'The famous equations trig obeys.',formulas:[{name:'Pythagorean',formula:'sin²θ+cos²θ=1',description:'Springs most others.'},{name:'Double angle',formula:'sin(2θ)=2 sin θ cos θ',description:'A workhorse identity.'},{name:'Angle sum',formula:'sin(A+B)=sinA cosB+cosA sinB',description:'Expansion of sine.'},],skills:['Verify identities','Simplify trig expressions','Use identities to evaluate',],tool:'trig',},{id:'logarithms',title:'Logarithms&Exponential Models',blurb:'Logs answer "to what power?" — and they undo exponents.',formulas:[{name:'Definition',formula:'log_a(b)=c ⇔ aᶜ=b',description:'Logs are inverse exponents.'},{name:'Product rule',formula:'log(xy)=log x+log y',description:'Multiply inside,add outside.'},{name:'Change of base',formula:'log_a(b)=ln b/ln a',description:'Compute any log with a calculator.'},],skills:['Convert between log and exp form','Apply log rules','Model exponential growth/decay',],},{id:'sequences-series',title:'Sequences&Series',blurb:'Arithmetic,geometric,and partial sums.',formulas:[{name:'Arithmetic sequence',formula:'aₙ=a₁+(n − 1)d',description:'Add a constant d each step.'},{name:'Geometric sequence',formula:'aₙ=a₁ · rⁿ⁻¹',description:'Multiply by a constant r each step.'},{name:'Geometric series',formula:'S=a(1 − rⁿ)/(1 − r)(r ≠ 1)',description:'Sum of n terms.'},],skills:['Identify arithmetic vs.geometric','Find terms of a sequence','Sum finite geometric series',],},{id:'conics',title:'Conic Sections',blurb:'Where a plane cuts a cone — four shapes,one family.',formulas:[{name:'Parabola',formula:'y=a(x − h)²+k',description:'Quadratic opens up or down.'},{name:'Circle',formula:'(x − h)²+(y − k)²=r²',description:'Center(h,k),radius r.'},{name:'Ellipse',formula:'x²/a²+y²/b²=1',description:'A stretched circle.'},{name:'Hyperbola',formula:'x²/a² − y²/b²=1',description:'Two branches opening left/right.'},],skills:['Identify conics from equations','Graph by hand','Convert between forms',],tool:'circle',},],},'12':{topics:[{id:'limits',title:'Limits(Calculus Preview)',blurb:'The fundamental idea behind derivatives.',formulas:[{name:'Limit definition',formula:'lim(x→a)f(x)=L',description:'The value f(x)approaches as x → a.'},{name:'Limit laws',formula:'lim(a·f+b·g)=a·lim f+b·lim g',description:'Limits respect arithmetic.'},{name:'Squeeze theorem',formula:'g ≤ f ≤ h and lim g=lim h ⇒ lim f=that',description:'Bound a function to find a limit.'},],skills:['Evaluate limits by substitution','Use limit laws','Recognize indeterminate forms',],},{id:'derivatives',title:'Derivatives',blurb:'Instantaneous rate of change — the slope of a tangent line.',formulas:[{name:'Definition',formula:"f'(x)=lim(h→0)[f(x+h)− f(x)]/h",description:'Limit definition of the derivative.'},{name:'Power rule',formula:"d/dx[xⁿ]=n·xⁿ⁻¹",description:'The most-used derivative rule.'},{name:'Product rule',formula:"d/dx[f·g]=f'·g+f·g'",description:'For products.'},{name:'Quotient rule',formula:"d/dx[f/g]=(f'·g − f·g')/g²",description:'For quotients(g ≠ 0).'},{name:'Chain rule',formula:"d/dx[f(g(x))]=f'(g(x))· g'(x)",description:'Composition:outer derivative × inner derivative.'},],skills:['Apply the power rule','Use product,quotient,chain rules','Find tangent lines',],tool:'derivative',},{id:'integrals',title:'Integrals(Antiderivatives)',blurb:'Area under a curve — the Fundamental Theorem of Calculus.',formulas:[{name:'Power rule for integrals',formula:'∫ xⁿ dx=xⁿ⁺¹/(n+1)(n ≠ −1)',description:'Reverse of the power rule.'},{name:'Constant multiple',formula:'∫ c·f(x)dx=c·∫ f(x)dx',description:'Constants pull out.'},{name:'Sum rule',formula:'∫(f+g)dx=∫ f dx+∫ g dx',description:'Integrate term-by-term.'},{name:'FTC',formula:'∫ₐᵇ f(x)dx=F(b)− F(a)',description:'Where F is any antiderivative of f.'},],skills:['Find antiderivatives of polynomials','Evaluate definite integrals','Apply the FTC',],tool:'integral',},{id:'stats-advanced',title:'Probability&Statistics:Advanced',blurb:'Standard distributions and their use.',formulas:[{name:'z-score',formula:'z=(x − μ)/σ',description:'How many σ above the mean.'},{name:'Binomial',formula:'P(X=k)=C(n,k)pᵏ(1 − p)ⁿ⁻ᵏ',description:'Counting trials with two outcomes.'},{name:'Standard deviation',formula:'σ=√(Σ(x − μ)²/N)',description:'Spread of a distribution.'},],skills:['Compute z-scores','Use the normal distribution','Set up binomial probabilities',],tool:'pct',},],},};
+const tools={count:renderCount,addsub:renderAddSub,mul:renderMul,frac:renderFrac,ratio:renderRatio,slope:renderSlope,pct:renderPct,circle:renderCircle,pythag:renderPythag,sys:renderSys,quad:renderQuad,trig:renderTrig,derivative:renderDerivative,integral:renderIntegral,};function renderTool(toolId,mountEl){const fn=tools[toolId];if(!fn){mountEl.innerHTML=`<div class="tool-output"><span class="hint">No interactive tool for this topic yet.</span></div>`;return}fn(mountEl)}function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}function makeInput({value,type='number',min,max,step}={}){const i=document.createElement('input');i.type=type;if(value!==undefined)i.value=String(value);if(min!==undefined)i.min=String(min);if(max!==undefined)i.max=String(max);if(step!==undefined)i.step=String(step);return i}function labelledInput({label,value,min,max,step,type='number',suffix}){const wrap=el('label','field');if(label)wrap.append(el('span','field-label',label));const inp=makeInput({value,type,min,max,step});wrap.append(inp);if(suffix)wrap.append(el('span','field-suffix',suffix));return{wrap,inp}}function rng(min,max){return Math.floor(Math.random()*(max-min+1))+min}function randInt(max){return rng(1,max)}function renderCount(root){let n=0;const intro=el('p','tool-intro','Click<strong>Next</strong>to count up by one.Click<strong>Reset</strong>to start over.');const out=el('div','tool-output');const dots=el('div','count-vis');const nextBtn=el('button','primary-btn','Next');const resetBtn=el('button','ghost-btn','Reset');const ctrls=el('div','tool-input');ctrls.append(nextBtn,resetBtn);function paint(){out.textContent=`n=${n}`;dots.innerHTML='';for(let i=0;i<10;i++){const d=el('div','dot'+(i<n?'':' off'));dots.append(d)}}nextBtn.addEventListener('click',()=>{n=Math.min(10,n+1);paint()});resetBtn.addEventListener('click',()=>{n=0;paint()});root.append(intro,out,dots,ctrls);paint()}function renderAddSub(root){let correct=0,total=0;const intro=el('p','tool-intro','Solve the problem.Type the answer — it checks as you go.Hit<strong>New problem</strong>for another.');const stats=el('div','practice-stats');const q=el('div','practice-q');const inp=makeInput({});inp.autocomplete='off';const newQBtn=el('button','primary-btn','New problem');const ctrls=el('div','tool-input');ctrls.append(newQBtn);let a=0,b=0,op='+';function newQ(){a=randInt(20);b=randInt(10);if(Math.random()<0.5)op='+';else op='−';q.innerHTML=`${a}${op}${b}=<span style="color:var(--text-dim);font-size:13px;">?</span>`;inp.value='';inp.className='';inp.focus();total++;paint()}function paint(){stats.textContent=`Score:${correct}/${total}`}inp.addEventListener('input',()=>{const want=op==='+'?a+b:a-b;const got=parseInt(inp.value,10);if(got===want){inp.className='correct';correct++;total--;total++;paint();setTimeout(newQ,600)}else if(inp.value!==''&&inp.value!=='-'){inp.className='wrong'}});newQBtn.addEventListener('click',newQ);q.append(inp);root.append(intro,q,ctrls,stats);newQ()}function renderMul(root){let correct=0,total=0;const intro=el('p','tool-intro','Practice multiplication and division.Type the answer — it checks as you go.');const stats=el('div','practice-stats');const q=el('div','practice-q');const inp=makeInput({});inp.autocomplete='off';const newQBtn=el('button','primary-btn','New problem');const ctrls=el('div','tool-input');ctrls.append(newQBtn);let a=0,b=0,op='×';function newQ(){a=randInt(12);b=randInt(12);op=(Math.random()<0.5)?'×':'÷';if(op==='÷'){const divisor=randInt(11);const mult=randInt(11);b=divisor;a=divisor*mult}q.innerHTML=`${a}${op}${b}=<span style="color:var(--text-dim);font-size:13px;">?</span>`;inp.value='';inp.className='';inp.focus();total++;paint()}function paint(){stats.textContent=`Score:${correct}/${total}`}inp.addEventListener('input',()=>{const want=op==='×'?a*b:Math.round(a/b);const got=parseInt(inp.value,10);if(!isNaN(got)&&got===want){inp.className='correct';correct++;total--;total++;paint();setTimeout(newQ,600)}else if(inp.value!==''&&inp.value!=='-'){inp.className='wrong'}});newQBtn.addEventListener('click',newQ);q.append(inp);root.append(intro,q,ctrls,stats);newQ()}function renderFrac(root){const intro=el('p','tool-intro','Change the numerator or denominator and watch the visual update.');const numInp=makeInput({value:3,min:1,max:12});const denInp=makeInput({value:4,min:1,max:12});const ctrls=el('div','tool-input');ctrls.append(el('span',null,'Numerator'),numInp,el('span',null,'Denominator'),denInp,);const out=el('div','tool-output');function paint(){const n=Math.max(1,Math.min(12,parseInt(numInp.value,10)||1));const d=Math.max(1,Math.min(12,parseInt(denInp.value,10)||1));const svg=`<svg viewBox="0 0 ${d*40}40" class="viz-svg" xmlns="http://www.w3.org/2000/svg">${Array.from({length:d}).map((_,i)=>{const filled=i<n;return `<rect x="${i*40}" y="0" width="40" height="40" fill="${filled?'#d4a017':'none'}" stroke="#a87d0c" stroke-width="1"/>`}).join('')}</svg>`;out.innerHTML=` ${svg}<div style="margin-top:10px;font-family:ui-monospace,monospace;font-size:18px;">${n}/${d}=${(n/d).toFixed(3)}=${(n/d*100).toFixed(1)}%</div>`}numInp.addEventListener('input',paint);denInp.addEventListener('input',paint);root.append(intro,ctrls,out);paint()}function renderRatio(root){const intro=el('p','tool-intro','Enter a ratio and a scale factor;the result updates live.');const a=makeInput({value:2});const b=makeInput({value:3});const k=makeInput({value:5});const ctrls=el('div','tool-input');ctrls.append(el('span',null,'a'),a,el('span',null,'b'),b,el('span',null,'scale k'),k,);const out=el('div','tool-output');function paint(){const av=+a.value||0,bv=+b.value||1,kv=+k.value||0;out.innerHTML=`<div style="margin-bottom:8px;">a:b=${av}:${bv}</div><div>Scale by ${kv}:<strong>${av}×${kv}:${bv}×${kv}=${av*kv}:${bv*kv}</strong></div><div style="margin-top:6px;color:var(--text-dim);">As decimal:${av}/${bv}=${(av/bv).toFixed(3)}</div>`}[a,b,k].forEach(i=>i.addEventListener('input',paint));root.append(intro,ctrls,out);paint()}function renderSlope(root){const intro=el('p','tool-intro','Adjust m(slope)and b(intercept);the graph updates live.');const m=makeInput({value:1,step:0.1});const b=makeInput({value:0,step:0.1});const ctrls=el('div','tool-input');ctrls.append(el('span',null,'m(slope)'),m,el('span',null,'b(intercept)'),b);const out=el('div','tool-output');const canvas=document.createElement('canvas');canvas.width=320;canvas.height=200;canvas.style.cssText='width:100%;max-width:320px;background:#fff;border-radius:8px;border:1px solid #e6e6e3;margin-top:10px;';function paint(){const mVal=parseFloat(m.value)||0;const bVal=parseFloat(b.value)||0;const ctx=canvas.getContext('2d');ctx.clearRect(0,0,320,200);ctx.strokeStyle='#aaa';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(160,0);ctx.lineTo(160,200);ctx.moveTo(0,100);ctx.lineTo(320,100);ctx.stroke();ctx.strokeStyle='#d4a017';ctx.lineWidth=2;const xScale=40,yScale=20;function px(x){return 160+x*xScale}function py(y){return 100-y*yScale}ctx.beginPath();for(let x=-3;x<=5;x+=0.1){const y=mVal*x+bVal;const sx=px(x),sy=py(y);if(x===-3)ctx.moveTo(sx,sy);else ctx.lineTo(sx,sy)}ctx.stroke();ctx.fillStyle='#a87d0c';ctx.font='14px ui-monospace,monospace';ctx.fillText(`y=${mVal}x+${bVal}`,10,20);out.innerHTML=`<div style="margin-top:8px;">Slope(m)=<strong>${mVal}</strong>· Y-intercept(b)=<strong>${bVal}</strong></div>`}[m,b].forEach(i=>i.addEventListener('input',paint));root.append(intro,ctrls,canvas,out);paint()}function renderPct(root){const intro=el('p','tool-intro','Type a percent and a number;the result updates as you type.');const pct=makeInput({value:15});const num=makeInput({value:40});const ctrls=el('div','tool-input');ctrls.append(el('span',null,'pct'),pct,el('span',null,'of'),num);const out=el('div','tool-output');function paint(){const p=parseFloat(pct.value)||0;const n=parseFloat(num.value)||0;const result=(p/100)*n;out.innerHTML=`${p}% of ${n}=<strong>${result.toFixed(4).replace(/\.?0+$/,'')}</strong>`}[pct,num].forEach(i=>i.addEventListener('input',paint));root.append(intro,ctrls,out);paint()}function renderCircle(root){const intro=el('p','tool-intro','Change the radius;circumference and area recompute live.');const r=makeInput({value:5,min:1,max:50,step:0.5});const ctrls=el('div','tool-input');ctrls.append(el('span',null,'radius r'),r);const out=el('div','tool-output');function paint(){const rv=parseFloat(r.value)||0;out.innerHTML=`<div>C=2πr=<strong>${(2*Math.PI*rv).toFixed(3)}</strong></div><div>A=πr²=<strong>${(Math.PI*rv*rv).toFixed(3)}</strong></div>`}r.addEventListener('input',paint);root.append(intro,ctrls,out);paint()}function renderPythag(root){const intro=el('p','tool-intro','Change a or b;the hypotenuse c updates instantly.');const a=makeInput({value:3,min:0,max:50});const b=makeInput({value:4,min:0,max:50});const ctrls=el('div','tool-input');ctrls.append(el('span',null,'side a'),a,el('span',null,'side b'),b);const out=el('div','formula-result');function paint(){const av=parseFloat(a.value)||0;const bv=parseFloat(b.value)||0;const c=Math.sqrt(av*av+bv*bv);out.innerHTML=`c=√(${av}²+${bv}²)=<strong>${c.toFixed(4)}</strong>`}[a,b].forEach(i=>i.addEventListener('input',paint));root.append(intro,ctrls,out);paint()}function renderSys(root){const intro=el('p','tool-intro','Change a,b,c(top)and a,b,c(bottom);the solution updates.');const a1=makeInput({value:2});const b1=makeInput({value:1});const c1=makeInput({value:5});const a2=makeInput({value:1});const b2=makeInput({value:-1});const c2=makeInput({value:1});const ctrls=el('div','tool-input');ctrls.append(el('span',null,'a₁'),a1,el('span',null,'x+'),el('span',null,'b₁'),b1,el('span',null,'y='),el('span',null,'c₁'),c1,el('span',null,'|a₂'),a2,el('span',null,'x+'),el('span',null,'b₂'),b2,el('span',null,'y='),el('span',null,'c₂'),c2,);const out=el('div','formula-result');function paint(){const A=[[+a1.value,+b1.value,+c1.value],[+a2.value,+b2.value,+c2.value]];const D=A[0][0]*A[1][1]-A[0][1]*A[1][0];if(Math.abs(D)<1e-9){out.innerHTML='No unique solution(parallel).';return}const Dx=A[0][2]*A[1][1]-A[0][1]*A[1][2];const Dy=A[0][0]*A[1][2]-A[0][2]*A[1][0];out.innerHTML=`x=${(Dx/D).toFixed(3)},y=${(Dy/D).toFixed(3)}(Cramer's rule)`}[a1,b1,c1,a2,b2,c2].forEach(i=>i.addEventListener('input',paint));root.append(intro,ctrls,out);paint()}function renderQuad(root){const intro=el('p','tool-intro','Adjust a,b,or c;the roots(and discriminant)update live.');const a=makeInput({value:1});const b=makeInput({value:-5});const c=makeInput({value:6});const ctrls=el('div','tool-input');ctrls.append(el('span',null,'a'),a,el('span',null,'b'),b,el('span',null,'c'),c);const out=el('div','formula-result');function paint(){const av=+a.value,bv=+b.value,cv=+c.value;const d=bv*bv-4*av*cv;if(Math.abs(d)<1e-9){out.innerHTML=`x=${(-bv/(2*av)).toFixed(4)}(double root)`}else if(d<0){out.innerHTML=`Δ=${d}<0 — no real roots`}else{const r1=(-bv+Math.sqrt(d))/(2*av);const r2=(-bv-Math.sqrt(d))/(2*av);out.innerHTML=`Δ=${d}<br>x₁=${r1.toFixed(4)}<br>x₂=${r2.toFixed(4)}`}}[a,b,c].forEach(i=>i.addEventListener('input',paint));root.append(intro,ctrls,out);paint()}function renderTrig(root){const intro=el('p','tool-intro','Type an angle in degrees;sine,cosine,and tangent update.');const theta=makeInput({value:30,step:'any'});const ctrls=el('div','tool-input');ctrls.append(el('span',null,'θ(degrees)'),theta);const out=el('div','formula-result');function paint(){const deg=parseFloat(theta.value)||0;const rad=deg*Math.PI/180;out.innerHTML=`sin(${deg}°)=<strong>${Math.sin(rad).toFixed(4)}</strong>· cos=<strong>${Math.cos(rad).toFixed(4)}</strong>· tan=<strong>${Math.tan(rad).toFixed(4)}</strong>`}theta.addEventListener('input',paint);root.append(intro,ctrls,out);paint()}function renderDerivative(root){const intro=el('p','tool-intro','Type a polynomial like<code>3x^2+2x+5</code>;the derivative updates as you type.');const expr=makeInput({type:'text',value:'3x^2+2x+5'});expr.style.minWidth='220px';const ctrls=el('div','tool-input');ctrls.append(el('span',null,'f(x)='),expr);const out=el('div','formula-result');function parse(s){return s.replace(/\s+/g,'').match(/[+\-]?[^+\-]+/g)||[]}function paint(){try{const terms=parse(expr.value);const out_terms=[];for(const t of terms){const m=t.match(/^([+\-]?\d*\.?\d*)x(?:\^(\d+))?$/i);if(m){const c=m[1]===''||m[1]==='+'?1:m[1]==='-'?-1:parseFloat(m[1]);const n=m[2]?parseInt(m[2],10):1;if(n===0)continue;const nc=c*n;const nn=n-1;if(nn===0)out_terms.push(`${nc}`);else if(nn===1)out_terms.push(`${nc}x`);else out_terms.push(`${nc}x^${nn}`)}}out.innerHTML=`f′(x)=<strong>${out_terms.join('+')||'0'}</strong>`}catch(e){out.innerHTML=`Parse error.Try form:3x^2+2x+5`}}expr.addEventListener('input',paint);root.append(intro,ctrls,out);paint()}function renderIntegral(root){const intro=el('p','tool-intro','Type a polynomial;the antiderivative(with+C)updates as you type.');const expr=makeInput({type:'text',value:'3x^2+2x+5'});expr.style.minWidth='220px';const ctrls=el('div','tool-input');ctrls.append(el('span',null,'∫ f(x)dx of'),expr);const out=el('div','formula-result');function paint(){try{const terms=expr.value.replace(/\s+/g,'').match(/[+\-]?[^+\-]+/g)||[];const out_terms=[];for(const t of terms){const m=t.match(/^([+\-]?\d*\.?\d*)x(?:\^(\d+))?$/i);if(m){const c=m[1]===''||m[1]==='+'?1:m[1]==='-'?-1:parseFloat(m[1]);const n=m[2]?parseInt(m[2],10):1;const nc=c/(n+1);if(n===0)out_terms.push(`${nc}x`);else if(n===1)out_terms.push(`${nc}x^2`);else out_terms.push(`${nc}x^${n+1}`)}}out.innerHTML=`∫ f(x)dx=<strong>${out_terms.join('+')||'0'}+C</strong>`}catch(e){out.innerHTML=`Parse error.Try form:3x^2+2x+5`}}expr.addEventListener('input',paint);root.append(intro,ctrls,out);paint()}
+let mathInit=false;
+function initMath(){
+  if(mathInit) return; mathInit=true;
+  const state={grade:'all',topicId:null,};const $=(sel)=>document.querySelector(sel);const $$=(sel)=>document.querySelectorAll(sel);function escapeHtml(s){return(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function buildGradePills(){const wrap=$('#gradePicker');for(const g of GRADES){const b=document.createElement('button');b.className='grade-pill';b.dataset.grade=g.id;b.textContent=g.short;b.title=g.label;b.setAttribute('role','tab');b.setAttribute('aria-selected','false');b.addEventListener('click',()=>selectGrade(g.id));wrap.appendChild(b)}const all=document.createElement('button');all.className='grade-pill';all.dataset.grade='all';all.textContent='All';all.title='Show all grades';all.setAttribute('role','tab');all.setAttribute('aria-selected','true');all.addEventListener('click',()=>selectGrade('all'));wrap.insertBefore(all,wrap.firstChild);syncActivePill()}function syncActivePill(){$$('.grade-pill').forEach(b=>{const active=b.dataset.grade===state.grade;b.classList.toggle('active',active);if(b.getAttribute('aria-selected')!=null){b.setAttribute('aria-selected',String(active))}})}function selectGrade(gid){state.grade=gid;state.topicId=null;syncActivePill();renderTopicList();renderContent()}function topicsForCurrentGrade(){const items=[];for(const g of GRADES){if(state.grade!=='all'&&g.id!==state.grade)continue;const block=CONTENT[g.id];if(!block)continue;for(const t of block.topics){items.push({grade:g,topic:t})}}return items}function renderTopicList(){const list=$('#topicList');list.innerHTML='';const items=topicsForCurrentGrade();if(!state.topicId&&items[0])state.topicId=items[0].topic.id;else if(state.topicId&&!items.some(it=>it.topic.id===state.topicId)){state.topicId=items[0]?.topic.id||null}for(const{grade,topic}of items){const row=document.createElement('div');row.className='topic-item';if(topic.id===state.topicId)row.classList.add('active');row.dataset.topic=topic.id;row.setAttribute('role','tab');row.setAttribute('tabindex','0');row.setAttribute('aria-selected',String(topic.id===state.topicId));row.innerHTML=`<span>${escapeHtml(topic.title)}</span><span class="badge">${escapeHtml(grade.short)}</span>`;const activate=()=>{state.topicId=topic.id;$$('.topic-item').forEach(el=>{const isActive=el.dataset.topic===topic.id;el.classList.toggle('active',isActive);el.setAttribute('aria-selected',String(isActive))});renderContent()};row.addEventListener('click',activate);row.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();activate()}});list.appendChild(row)}}function findTopic(tid){for(const g of GRADES){const block=CONTENT[g.id];if(!block)continue;for(const t of block.topics){if(t.id===tid)return{grade:g,topic:t}}}return null}function renderContent(){const c=$('#content');if(!state.topicId){c.innerHTML=`<div class="placeholder"><h2>Pick a topic to start learning</h2><p>Use the grade selector above to filter,then pick a topic on the left.</p></div>`;return}const found=findTopic(state.topicId);if(!found){c.innerHTML=`<div class="placeholder"><h2>Topic not found</h2></div>`;return}const{grade,topic}=found;const formulasHtml=topic.formulas.map(f=>`<div class="formula-card"><h4>${escapeHtml(f.name)}</h4><div class="expr">${escapeHtml(f.formula)}</div><p>${escapeHtml(f.description)}</p></div>`).join('');const skillsHtml=topic.skills.map(s=>`<div class="skill">${escapeHtml(s)}</div>`).join('');const toolHtml=topic.tool?`<div class="tool-card"><h3>Try it</h3><p>Hands-on practice for this topic.</p><div id="toolRoot"></div></div>`:'';c.innerHTML=`<div class="topic-head"><h2>${escapeHtml(topic.title)}</h2><p>${escapeHtml(topic.blurb)}</p><span class="meta">${escapeHtml(grade.label)}· ${escapeHtml(grade.short)}</span></div>${formulasHtml?`<div class="section-title">Formulas</div><div class="formula-grid">${formulasHtml}</div>`:''}${skillsHtml?`<div class="section-title">Skills to practice</div><div class="skills">${skillsHtml}</div>`:''}${toolHtml}`;if(topic.tool)renderTool(topic.tool,$('#toolRoot'))};
+  // The math UI functions are now defined globally (buildGradePills, renderTopicList, renderContent).
+  if(typeof buildGradePills==='function'){ buildGradePills(); renderTopicList(); renderContent(); }
+}
+
+/* Note: bundle.js normally calls setupSignIn() on DOMContentLoaded and wires the
+   sign-in submit to a server. We override the easter-egg behavior here instead. */
+</script>
+
+<script>
+/* ============ Math easter-egg + sign-in (client-side) ============ */
+document.addEventListener('DOMContentLoaded', function(){
+  const modal=document.getElementById('signinModal');
+  const open=()=>{modal.hidden=false;document.body.style.overflow='hidden';setTimeout(()=>document.getElementById('signinUser').focus(),50);};
+  const close=()=>{modal.hidden=true;document.body.style.overflow='';};
+  document.getElementById('signInBtn').addEventListener('click',open);
+  document.getElementById('signinCancel').addEventListener('click',close);
+  modal.addEventListener('click',e=>{if(e.target===modal)close();});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!modal.hidden)close();});
+  document.getElementById('signinForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const u=document.getElementById('signinUser').value.trim().toLowerCase();
+    const p=document.getElementById('signinPass').value;
+    if(u==='viking'&&p==='viking'){ close(); showView('vkProxyView'); initProxy(); }
+    else { const err=document.getElementById('signinError'); err.textContent='Sign-in failed. Try again or create an account later.'; err.hidden=false; }
+  });
+});
+</script>
+
+</body>
+</html>
