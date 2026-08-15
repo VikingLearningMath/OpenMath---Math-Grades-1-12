@@ -132,18 +132,3 @@ const q = new URLSearchParams(location.search).get('q');
 if (q) {
   doSearch(q.trim());
 }
-
-// Particles background (matching home)
-if (window.particlesJS) {
-  particlesJS('particles-js', {
-    particles: {
-      number: { value: 86, density: { enable: true, value_area: 800 } },
-      color: { value: '#ffffff' },
-      shape: { type: 'circle' },
-      opacity: { value: 1, random: true },
-      size: { value: 2, random: true },
-      line_linked: { enable: false },
-      move: { enable: true, speed: 0.5, direction: 'top', random: false, straight: false, out_mode: 'out' },
-    },
-  });
-}

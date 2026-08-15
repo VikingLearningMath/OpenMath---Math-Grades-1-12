@@ -28,7 +28,11 @@
     </li>
     <hr />
     <li>
-      <a href="/settings.html"><span style="margin-top: 0" class="material-symbols-outlined">tune</span></a>
+      <a href="/math" title="Openmathlearning"><span class="material-symbols-outlined">functions</span></a>
+    </li>
+    <hr />
+    <li>
+      <a href="/settings"><span style="margin-top: 0" class="material-symbols-outlined">tune</span></a>
     </li>
   </ul>
 
@@ -51,7 +55,10 @@
   <!-- Initial search header (centered) -->
   <div class="header" id="centerSearch">
     <div style="display: flex; flex-direction: column; align-items: center; margin: 20px; width: 100vw;">
-      <div style="animation: fade-in-top 1s; margin-top: -150px" class="search-header">
+      <h1 style="color:#ffd700;font-size:clamp(30px,6vw,58px);font-weight:800;letter-spacing:-.02em;text-shadow:0 0 40px rgba(255,204,0,.35);margin:0 0 8px;">
+        Say Hello To <span class="typewrite" data-period="2000" data-type='[ "Viking.","adventure.","exploration.","power.","the open web.","valhalla.","freedom.","speed.","the seven seas.","your gateway.","aesthetic.","privacy."]'><span class="wrap"></span></span>
+      </h1>
+      <div style="animation: fade-in-top 1s; margin-top: 6px" class="search-header">
         <img src="" class="searchEngineIcon" id="searchEngineIcon" />
         <form id="formintospace">
           <input
@@ -92,7 +99,8 @@
   <canvas id="lava-bg" aria-hidden="true"></canvas>
 
   <script src="/js/proxy.js"></script>
-  <!-- Lava mouse-effect background (shared) -->
+  <!-- Shared typewriter + lava background -->
+  <script src="/js/typewriter.js"></script>
   <script src="/js/lava.js"></script>
 </body>
 </html>
