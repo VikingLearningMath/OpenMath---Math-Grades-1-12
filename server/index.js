@@ -124,20 +124,11 @@ app.get('/p', async (req, res) => {
   }
 });
 
-// ----- Static files + named pages -----
-app.use(express.static(PUBLIC, {
-  setHeaders(res, p) {
-    if (p.endsWith('.html') || p.endsWith('.css') || p.endsWith('.js')) {
-      res.setHeader('Cache-Control', 'no-cache');
-    }
-  },
-}));
-
-// Page routes
-// Landing page — the original Viking home (Welcome to... typewriter).
-app.get(['/'], (_req, res) => res.sendFile(path.join(PUBLIC, 'index.html')));
-// The math site (Openmathlearning) is still reachable at /math (and /math/).
-app.get(['/math', '/math/'], (_req, res) => res.sendFile(path.join(PUBLIC, 'home.html')));
+// ----- Named page routes (registered BEFORE static so they take priority) -----
+// The app starts on the math page (Openmathlearning).
+app.get(['/', '/math', '/math/'], (_req, res) => res.sendFile(path.join(PUBLIC, 'home.html')));
+// The original Viking home (Welcome to... typewriter) is still available at /home.
+app.get(['/home', '/home/'], (_req, res) => res.sendFile(path.join(PUBLIC, 'index.html')));
 // Public alias to the Viking proxy landing (same UI as the secret path) so the
 // home search and the /proxy?q= flow can reach it directly.
 app.get('/proxy', (_req, res) => res.sendFile(path.join(PUBLIC, 'proxy.html')));
@@ -147,6 +138,15 @@ app.get('/proxy', (_req, res) => res.sendFile(path.join(PUBLIC, 'proxy.html')));
 app.get(SECRET_PATH, (_req, res) => res.sendFile(path.join(PUBLIC, 'proxy.html')));
 // Settings page is also reachable via the secret path (it's used inside the proxy UI).
 app.get('/settings', (_req, res) => res.sendFile(path.join(PUBLIC, 'settings.html')));
+
+// ----- Static files -----
+app.use(express.static(PUBLIC, {
+  setHeaders(res, p) {
+    if (p.endsWith('.html') || p.endsWith('.css') || p.endsWith('.js')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  },
+}));
 
 // Non-discoverable endpoint: signs a password into a redirect URL.
 // The client passes user/pw; on success we return { ok, path: SECRET_PATH }.
