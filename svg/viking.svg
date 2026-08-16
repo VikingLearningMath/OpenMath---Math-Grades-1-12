@@ -32,6 +32,7 @@ html, body { width: 100%; min-height: 100vh; }
 .vk-search input { flex: 1; background: transparent; border: none; outline: none; color: #ffd700; font-size: 17px; font-family: inherit; }
 .vk-search button { background: transparent; border: none; cursor: pointer; color: #ffcc00; font-size: 22px; }
 .vk-util { position: fixed; top: 0; left: 70px; right: 0; height: 58px; background: rgba(0,0,0,.95); backdrop-filter: blur(20px); border-bottom: 1px solid #1a1a1a; z-index: 999999; display:none; align-items: center; padding: 0 14px; gap: 8px; }
+#pUtil { display: flex; }
 .vk-util .ic { display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:8px; cursor:pointer; color:#aaa; font-size:20px; transition: background .15s, color .15s; user-select:none; }
 .vk-util .ic:hover { background:#1a1a1a; color:#ffcc00; }
 .vk-util .addr { flex:1; max-width:640px; background:#0a0a0a; border:1px solid #1a1a1a; border-radius:30px; padding:0 18px; height:42px; color:#ffd700; font-size:15px; font-family:inherit; outline:none; }
@@ -736,7 +737,7 @@ body.vk #vkMathView a { color: var(--gold, #d4a017); }
   </div>
   <div class="vk-util" style="display:none;"></div>
   <div class="vk-home" id="pCenter" style="left:calc(70px + 50%);">
-    <h1 style="font-size:clamp(34px,6vw,60px)">VIKING</h1>
+    <h1 style="font-size:clamp(34px,6vw,60px)">VIKING <span class="typewrite" data-period="2200" data-type="[ &quot;proxy.&quot;,&quot;the open web.&quot;,&quot;your gateway.&quot;,&quot;anonymous.&quot;,&quot;valhalla.&quot;,&quot;freedom.&quot;,&quot;speed.&quot;]"><span class="wrap">proxy.</span></span></h1>
     <div class="vk-search" id="pSearch">
       <input id="pInput" placeholder="Search or enter URL…" />
       <button id="pBtn">➤</button>
