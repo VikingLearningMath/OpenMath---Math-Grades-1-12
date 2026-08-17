@@ -675,7 +675,7 @@ body.vk #vkMathView a { color: var(--gold, #d4a017); }
   </ul>
   <div class="vk-blob"></div><div class="vk-b2"></div><div class="vk-b3"></div><div class="vk-b4"></div>
   <div class="vk-home">
-    <h1>Say Hello To <span class="typewrite" data-period="2000" data-type='[ "Viking.","valhalla.","the seven seas.","a longship on the web.","draugr-fast.","norse code.","skål!","runes & raids.","a shieldmaiden's tool.","sail far.","our fjord.","honor & glory."]'><span class="wrap">Viking.</span></span></h1>
+    <h1>Say Hello To <span class="typewrite" data-period="2000" data-type='[ "Viking.","valhalla.","the seven seas.","a longship on the web.","draugr-fast.","norse code.","skål!","runes & raids.","a shieldmaiden tool.","sail far.","our fjord.","honor & glory."]'><span class="wrap">Viking.</span></span></h1>
     <p>Search, browse, and explore.</p>
     <div class="vk-search" id="vkHomeSearch">
       <input id="vkHomeInput" placeholder="Search or enter a URL…" aria-label="Search or enter URL" />
@@ -798,12 +798,12 @@ document.getElementById('vNavProxy').addEventListener('click', e=>{e.preventDefa
 
 <script>
 /* ============================= PROXY (client-side, open-source) ============================= */
-// CORS proxies ordered by reliability. corsproxy.io is fast + reliable;
-// allorigins/get is a slower fallback. Dead/slow proxies (allorigins/raw,
-// codetabs, isomorphic-git) are dropped so search doesn't hang on them.
+// CORS proxies for scraping search/URLs. NOTE: most free proxies are dead or
+// paywalled right now (corsproxy.io = 403, allorigins/get = 522); allorigins/raw
+// is the one that intermittently works, so it's the only one kept here. Search
+// primarily relies on native-CORS endpoints (DDG Instant Answer + Wikipedia).
 const CORS_PROXIES = [
-  { name:'corsproxy',    json:false, make: u => 'https://corsproxy.io/?url=' + encodeURIComponent(u) },
-  { name:'allorigins-get', json:true, make: u => 'https://api.allorigins.win/get?url=' + encodeURIComponent(u) }
+  { name:'allorigins-raw', json:false, make: u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u) }
 ];
 // Fetch a URL through the CORS proxies. Tries them in parallel and returns the
 // first one that yields real content, with a short per-proxy timeout so the
@@ -920,33 +920,43 @@ function initProxy(){
     center.style.display='none'; results.style.display='block';
     spinOn(false); // search uses its own text feedback, not the full-page spinner
     inner.innerHTML='<p style="color:#888">Searching…</p>';
-    // Fast, always-works path: DuckDuckGo Instant Answer API (native CORS).
-    try{
-      const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(), 6000);
-      const r=await fetch('https://api.duckduckgo.com/?q='+encodeURIComponent(q)+'&format=json&no_html=1&skip_disambig=1',{signal:ctl.signal});
-      clearTimeout(to);
-      const j=await r.json();
-      const items=ddgItems(j);
-      if(items.length>0){ renderResults('DuckDuckGo',items); return; }
-    }catch(_e){}
-    // Reliable fallback for longer/multi-word queries: Wikipedia OpenSearch API
-    // (native CORS, no proxy needed — works for any query length).
-    try{
-      const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(), 6000);
-      const r=await fetch('https://en.wikipedia.org/w/api.php?action=opensearch&search='+encodeURIComponent(q)+'&limit=10&format=json&origin=*',{signal:ctl.signal});
-      clearTimeout(to);
-      const j=await r.json();
-      const titles=j[1]||[], urls=j[3]||[];
-      const items=[];
-      for(let i=0;i<titles.length;i++){ if(titles[i]&&urls[i]) items.push({title:titles[i],url:urls[i]}); }
-      if(items.length>0){ renderResults('Wikipedia',items); return; }
-    }catch(_e){}
-    // Last-ditch fallback: search-engine HTML scraped through fast CORS proxies.
+    // Native-CORS paths (no third-party proxy needed): DuckDuckGo Instant Answer
+    // + Wikipedia OpenSearch. Both are queried in parallel so multi-word queries
+    // return fast even when DDG's entity API returns nothing.
+    async function ddg(qq){
+      try{
+        const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(), 6000);
+        const r=await fetch('https://api.duckduckgo.com/?q='+encodeURIComponent(qq)+'&format=json&no_html=1&skip_disambig=1',{signal:ctl.signal});
+        clearTimeout(to);
+        const j=await r.json();
+        return ddgItems(j);
+      }catch(_e){ return []; }
+    }
+    async function wiki(qq){
+      try{
+        const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(), 7000);
+        const r=await fetch('https://en.wikipedia.org/w/api.php?action=opensearch&search='+encodeURIComponent(qq)+'&limit=10&format=json&origin=*',{signal:ctl.signal});
+        clearTimeout(to);
+        const j=await r.json();
+        const titles=j[1]||[], urls=j[3]||[];
+        const out=[];
+        for(let i=0;i<titles.length;i++){ if(titles[i]&&urls[i]) out.push({title:titles[i],url:urls[i]}); }
+        return out;
+      }catch(_e){ return []; }
+    }
+    const native = await Promise.all([ddg(q), wiki(q)]);
+    const ddgRes = native[0], wikiRes = native[1];
+    if(ddgRes.length>0 && (ddgRes.length>=3 || q.split(/\s+/).length<=2)){ renderResults('DuckDuckGo',ddgRes); return; }
+    if(wikiRes.length>0){ renderResults('Wikipedia',wikiRes); return; }
+    if(ddgRes.length>0){ renderResults('DuckDuckGo',ddgRes); return; }
+    // Last-ditch fallback: search-engine HTML scraped through a CORS proxy.
+    // NOTE: most free CORS proxies are dead/paywalled (corsproxy.io = 403,
+    // allorigins often 502), so this is best-effort only; the native paths above
+    // (Wikipedia in particular) are what make multi-word search reliable.
     const engines=[
-      ['Bing','https://www.bing.com/search?q=','https://www.bing.com'],
-      ['Mojeek','https://www.mojeek.com/search?q=','https://www.mojeek.com'],
       ['DDG','https://lite.duckduckgo.com/lite/?q=','https://lite.duckduckgo.com'],
-      ['Startpage','https://www.startpage.com/sp/search?query=','https://www.startpage.com']
+      ['Bing','https://www.bing.com/search?q=','https://www.bing.com'],
+      ['Mojeek','https://www.mojeek.com/search?q=','https://www.mojeek.com']
     ];
     for(const [name,url,base] of engines){
       let html;
