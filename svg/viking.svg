@@ -674,7 +674,7 @@ body.vk #vkMathView a { color: var(--gold, #d4a017); }
   </ul>
   <div class="vk-blob"></div><div class="vk-b2"></div><div class="vk-b3"></div><div class="vk-b4"></div>
   <div class="vk-home">
-    <h1>Say Hello To <span class="typewrite" data-period="2000" data-type="[ &quot;Viking.&quot;,&quot;adventure.&quot;,&quot;exploration.&quot;, &quot;power.&quot;,&quot;the open web.&quot;,&quot;valhalla.&quot;,&quot;freedom.&quot;,&quot;speed.&quot;,&quot;the seven seas.&quot;,&quot;your gateway.&quot;,&quot;aesthetic.&quot;,&quot;privacy.&quot;]"><span class="wrap">Viking.</span></span></h1>
+    <h1>Say Hello To <span class="typewrite" data-period="2000" data-type="[ &quot;Viking.&quot;,&quot;valhalla.&quot;,&quot;the seven seas.&quot;,&quot;a longship on the web.&quot;,&quot;draugr-fast.&quot;,&quot;norse code.&quot;,&quot;skål!&quot;,&quot;runes &amp; raids.&quot;,&quot;a shieldmaiden" s="s" tool.="tool." sail="sail" far.="far." our="our" fjord.="fjord." honor="honor" glory.="glory."><span class="wrap">Viking.</span></span></h1>
     <p>Search, browse, and explore.</p>
     <div class="vk-search" id="vkHomeSearch">
       <input id="vkHomeInput" placeholder="Search or enter a URL…" aria-label="Search or enter URL" />
@@ -737,7 +737,7 @@ body.vk #vkMathView a { color: var(--gold, #d4a017); }
   </div>
   <div class="vk-util" style="display:none;"></div>
   <div class="vk-home" id="pCenter" style="left:calc(70px + 50%);">
-    <h1 style="font-size:clamp(34px,6vw,60px)">VIKING <span class="typewrite" data-period="2200" data-type="[ &quot;proxy.&quot;,&quot;the open web.&quot;,&quot;your gateway.&quot;,&quot;anonymous.&quot;,&quot;valhalla.&quot;,&quot;freedom.&quot;,&quot;speed.&quot;]"><span class="wrap">proxy.</span></span></h1>
+    <h1 style="font-size:clamp(34px,6vw,60px)">VIKING <span class="typewrite" data-period="2200" data-type="[ &quot;proxy.&quot;,&quot;the open web.&quot;,&quot;your fyord.&quot;,&quot;valhalla.&quot;,&quot;a longship ride.&quot;,&quot;skål!&quot;,&quot;runes.&quot;,&quot;sail far.&quot;,&quot;honor &amp; glory.&quot;]"><span class="wrap">proxy.</span></span></h1>
     <div class="vk-search" id="pSearch">
       <input id="pInput" placeholder="Search or enter URL…" />
       <button id="pBtn">➤</button>
@@ -837,6 +837,8 @@ function initProxy(){
         inner=document.getElementById('pResultsInner'), util=document.getElementById('pUtil'),
         frame=document.getElementById('pFrame'), spin=document.getElementById('pSpin'),
         addr=document.getElementById('pAddr'), input=document.getElementById('pInput');
+  // Session history for back/forward/refresh (the proxied iframe, not the outer doc).
+  const histStack=[]; let histIdx=-1;
 
   function spinOn(o){ spin.style.display = o ? 'block':'none'; }
   async function fetchHtml(target){
@@ -867,11 +869,19 @@ function initProxy(){
     out=injectInterceptor(out);
     frame.srcdoc=out; spinOn(false);
   }
-  function enterSite(url){
+  function enterSite(url, pushHistory=true){
     center.style.display='none'; results.style.display='none';
     util.style.display='flex'; frame.style.display='block';
+    if(pushHistory){
+      // Trim any forward entries, then push.
+      histStack.splice(histIdx+1);
+      histStack.push(url); histIdx=histStack.length-1;
+    }
     addr.value=url; renderUrl(url);
   }
+  function goBack(){ if(histIdx>0){ histIdx--; enterSite(histStack[histIdx], false); } }
+  function goForward(){ if(histIdx<histStack.length-1){ histIdx++; enterSite(histStack[histIdx], false); } }
+  function doRefresh(){ if(frame.srcdoc && addr.value) renderUrl(addr.value); }
   window.vkLoadProxy = function(u){ enterSite(u); };
 
   function parseResults(html,baseUrl){
@@ -916,7 +926,19 @@ function initProxy(){
       const items=ddgItems(j);
       if(items.length>0){ renderResults('DuckDuckGo',items); return; }
     }catch(_e){}
-    // Fallback: search-engine HTML scraped through fast CORS proxies.
+    // Reliable fallback for longer/multi-word queries: Wikipedia OpenSearch API
+    // (native CORS, no proxy needed — works for any query length).
+    try{
+      const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(), 6000);
+      const r=await fetch('https://en.wikipedia.org/w/api.php?action=opensearch&search='+encodeURIComponent(q)+'&limit=10&format=json&origin=*',{signal:ctl.signal});
+      clearTimeout(to);
+      const j=await r.json();
+      const titles=j[1]||[], urls=j[3]||[];
+      const items=[];
+      for(let i=0;i<titles.length;i++){ if(titles[i]&&urls[i]) items.push({title:titles[i],url:urls[i]}); }
+      if(items.length>0){ renderResults('Wikipedia',items); return; }
+    }catch(_e){}
+    // Last-ditch fallback: search-engine HTML scraped through fast CORS proxies.
     const engines=[
       ['Bing','https://www.bing.com/search?q=','https://www.bing.com'],
       ['Mojeek','https://www.mojeek.com/search?q=','https://www.mojeek.com'],
@@ -942,9 +964,9 @@ function initProxy(){
   document.getElementById('pBtn').addEventListener('click', ()=>submit(input.value.trim()));
   input.addEventListener('keydown', e=>{ if(e.key==='Enter'){e.preventDefault(); submit(input.value.trim());} });
   addr.addEventListener('keydown', e=>{ if(e.key==='Enter'){e.preventDefault(); submit(addr.value.trim());} });
-  document.getElementById('pBack').addEventListener('click', ()=>history.back());
-  document.getElementById('pFwd').addEventListener('click', ()=>history.forward());
-  document.getElementById('pRefresh').addEventListener('click', ()=>{ if(frame.srcdoc) renderUrl(addr.value); });
+  document.getElementById('pBack').addEventListener('click', ()=>goBack());
+  document.getElementById('pFwd').addEventListener('click', ()=>goForward());
+  document.getElementById('pRefresh').addEventListener('click', ()=>doRefresh());
   document.getElementById('pFull').addEventListener('click', ()=>{ if(document.fullscreenElement) document.exitFullscreen?.(); else document.documentElement.requestFullscreen?.(); });
   document.getElementById('pNavHome').addEventListener('click', e=>{e.preventDefault(); showView('vkHomeView');});
   document.getElementById('pNavMath').addEventListener('click', e=>{e.preventDefault(); showView('vkMathView');});
