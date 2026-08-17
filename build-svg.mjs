@@ -117,20 +117,41 @@ function fixStartTag(m, tag, rest, selfClosing) {
 function transform(text) {
   const parts = [];
   let last = 0;
-  const re = /<(script|style)\b[^>]*>/gi;
+  const re = /<(script|style)\b([^>]*)>/gi;
   let m;
   while ((m = re.exec(text))) {
+    const tagName = m[1], attrs = m[2];
+    // External script (<script src=...> ... </script>): keep entirely in the
+    // markup stream (do NOT CDATA-wrap) so the src actually loads inside SVG.
+    const isExternal = tagName === 'script' && /\bsrc\s*=/.test(attrs);
+    if (isExternal) {
+      parts.push({ type: 'markup', text: text.slice(last, m.index) });
+      // find the closing tag and keep the whole thing as markup
+      const closeRe = new RegExp('</' + tagName + '\\s*>', 'ig');
+      closeRe.lastIndex = re.lastIndex;
+      const cm = closeRe.exec(text);
+      if (cm) {
+        parts.push({ type: 'markup', text: text.slice(m.index, closeRe.lastIndex) });
+        re.lastIndex = closeRe.lastIndex;
+        last = closeRe.lastIndex;
+      } else {
+        parts.push({ type: 'markup', text: text.slice(m.index) });
+        last = text.length;
+        re.lastIndex = text.length;
+        break;
+      }
+      continue;
+    }
     parts.push({ type: 'markup', text: text.slice(last, m.index) });
-    const tag = m[0];
-    const closeRe = new RegExp('</' + m[1] + '\\s*>', 'ig');
+    const closeRe = new RegExp('</' + tagName + '\\s*>', 'ig');
     closeRe.lastIndex = re.lastIndex;
     const cm = closeRe.exec(text);
     if (cm) {
-      parts.push({ type: 'raw', tag, content: text.slice(re.lastIndex, cm.index), close: cm[0] });
+      parts.push({ type: 'raw', tag: m[0], content: text.slice(re.lastIndex, cm.index), close: cm[0] });
       re.lastIndex = closeRe.lastIndex;
       last = closeRe.lastIndex;
     } else {
-      parts.push({ type: 'raw', tag, content: text.slice(re.lastIndex), close: '' });
+      parts.push({ type: 'raw', tag: m[0], content: text.slice(re.lastIndex), close: '' });
       last = text.length;
       re.lastIndex = text.length;
       break;

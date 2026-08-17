@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Viking</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" />
+<script src="https://cdn.jsdelivr.net/npm/libcurl.js@latest/libcurl_full.js"></script>
 <style>
 /* ================= VIKING THEME (home + proxy) ================= */
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -949,10 +950,13 @@ function initProxy(){
     if(ddgRes.length>0 && (ddgRes.length>=3 || q.split(/\s+/).length<=2)){ renderResults('DuckDuckGo',ddgRes); return; }
     if(wikiRes.length>0){ renderResults('Wikipedia',wikiRes); return; }
     if(ddgRes.length>0){ renderResults('DuckDuckGo',ddgRes); return; }
-    // Last-ditch fallback: search-engine HTML scraped through a CORS proxy.
-    // NOTE: most free CORS proxies are dead/paywalled (corsproxy.io = 403,
-    // allorigins often 502), so this is best-effort only; the native paths above
-    // (Wikipedia in particular) are what make multi-word search reliable.
+    // Reliable general-web search: libcurl.js (curl → WASM) through a Wisp
+    // WebSocket relay. This bypasses CORS entirely, so it can hit
+    // search engines directly and return real results for ANY query length.
+    const tryCuri = await libSearch(q);
+    if(tryCuri){ renderResults('DuckDuckGo', tryCuri); return; }
+    // Last resort: legacy HTML scrape through an HTTP CORS proxy (most are
+    // dead/paywalled now, so this rarely lands).
     const engines=[
       ['DDG','https://lite.duckduckgo.com/lite/?q=','https://lite.duckduckgo.com'],
       ['Bing','https://www.bing.com/search?q=','https://www.bing.com'],
@@ -969,6 +973,48 @@ function initProxy(){
     }
     spinOn(false);
     inner.innerHTML='<p style="color:#ff5555">Search failed — the search services are busy right now. Try again in a moment or type a full URL instead.</p>';
+  }
+
+  // ---- libcurl.js (WASM curl) general web search ----
+  // curl runs inside WebAssembly, so its requests bypass the browser's CORS/
+  // same-origin policy. Network transport is carried over a public Wisp
+  // WebSocket relay (same technique GUST Browser uses). Lazy-initialised on
+  // first search; falls back across a few relays.
+  const WISP_RELAYS = [
+    'wss://wisp.rhw.one/wisp/',
+    'wss://wisp.mercurywork.shop/wisp/',
+    'wss://wisp.ggtyler.dev/wisp/'
+  ];
+  let curlReady = null;
+  async function initCurl(){
+    if(!window.libcurl) return false;
+    if(curlReady!==null) return curlReady;
+    try{
+      await window.libcurl.load_wasm();
+      let ok=false;
+      for(const w of WISP_RELAYS){
+        try{ window.libcurl.set_websocket(w); ok=true; break; }catch(_e){ /* try next */ }
+      }
+      curlReady = ok;
+    }catch(_e){ curlReady=false; }
+    return curlReady;
+  }
+  async function libSearch(q){
+    const ok = await initCurl();
+    if(!ok) return null;
+    try{
+      const ctl = new AbortController();
+      const to = setTimeout(()=>ctl.abort(), 15000);
+      const res = await window.libcurl.fetch('https://html.duckduckgo.com/html/?q='+encodeURIComponent(q), {
+        method:'GET', signal: ctl.signal,
+        headers:{'User-Agent':'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124 Safari/537.36','Accept':'text/html'}
+      });
+      clearTimeout(to);
+      const txt = await res.text();
+      if(!txt || txt.length<400) return null;
+      const items = parseResults(txt, 'https://html.duckduckgo.com/html/');
+      return items.length>0 ? items : null;
+    }catch(_e){ return null; }
   }
 
   window.vkOpenSearch = function(q){ doSearch(q); };
